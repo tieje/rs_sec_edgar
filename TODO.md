@@ -22,5 +22,7 @@ It is significantly more human-readable to query by ticker rather than CIK, but 
 
 USER_AGENT="Company Not Available toj320@gmail.com" cargo t
 
+cargo t -- --nocapture
+
 ## References
 - [py-edgar](https://github.com/joeyism/py-edgar/tree/master)

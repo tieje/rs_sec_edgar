@@ -108,6 +108,7 @@ pub fn sec_client() -> Client {
     let mut headers = HeaderMap::new();
     headers.insert(ACCEPT_ENCODING, HEADER_ACCEPT_ENCODING);
     headers.insert(HOST, HEADER_HOST);
+    dbg!(option_env!("USER_AGENT"));
     headers.insert(
         USER_AGENT,
         HeaderValue::from_static(
@@ -173,6 +174,8 @@ mod tests {
         let path: &str = "./ignore/ticker.txt";
         let edgar = Edgar::new(Some(path));
         let res = edgar.get_cik(ticker).await;
+        dbg!(&res);
+        dbg!(option_env!("USER_AGENT").expect("USER_AGENT environment variable not set"));
         match res {
             Some(r) => assert_eq!(r.as_str(), answer),
             _ => assert!(false),

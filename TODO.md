@@ -12,12 +12,10 @@ It is significantly more human-readable to query by ticker rather than CIK, but 
    2. If the ticker is the same as parameter ticker then return cik.
    3. If the ticker is not the same, then continue iterating
 
-- [ ] look ahead and look behind not supported. create a workaround. Perhaps double regex patterns.
-- [ ] create a function that queries the SEC's cik txt file for a company by either ticker or cik
-  - [ ] query the SEC's ticker file
-    - https://www.sec.gov/include/ticker.txt
-  - [ ] the new implementation can take an optional file path
-- [ ] write documentation for this function using chatgpt
+- [x] figure out how to parse the string
+- [x] learn [how to write documentation](https://doc.rust-lang.org/rustdoc/write-documentation/what-to-include.html)
+- [ ] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
+
 - [ ] read references
 - [ ] figure how to publish a crate
 

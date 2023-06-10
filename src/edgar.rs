@@ -49,7 +49,8 @@ mod tests {
 
     use super::*;
     #[test]
-    #[ignore = "The file could be placed anywhere. By default it will check ./ticker.txt"]
+    #[ignore = r"The file could be placed anywhere. By default it will check ./ticker.txt. The file comes from:
+    https://www.sec.gov/include/ticker.txt"]
     fn edgar_valid_file_path() {
         let path: &str = "./ignore/ticker.txt";
         assert_eq!(Edgar::new(Some(path)), Edgar::ticker_file_location(path))

@@ -9,4 +9,6 @@ edition = "2021"
 atom_syndication = { version = "0.11", features = ["with-serde"] }
 regex = "1.8.4"
 reqwest = { version = "0.11.18", features = ["gzip", "deflate", "json"] }
+serde = "1.0.164"
+serde-xml-rs = "0.6.0"
 tokio = { version = "1.28.2", default-features = false, features = ["net", "macros", "rt-multi-thread"] }

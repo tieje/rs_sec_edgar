@@ -1,3 +1,4 @@
 [env]
 # Set ENV_VAR_NAME=value for any process run by Cargo
 USER_AGENT = "Company Not Available toj320@gmail.com"
+# RUST_BACKTRACE = "1"

@@ -23,9 +23,25 @@ I think this point will be when I create the function `fn get_latest_10Q`
 
 6/10/2023
 
+```xml
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<accession-number>0000002488-23-000076</accession-number>
+<act>34</act>
+<file-number>001-07882</file-number>
+<file-number-href>https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&filenum=001-07882&owner=include&count=10</file-number-href>
+<filing-date>2023-05-03</filing-date>
+<filing-href>https://www.sec.gov/Archives/edgar/data/2488/000000248823000076/0000002488-23-000076-index.htm</filing-href>
+<filing-type>10-Q</filing-type>
+<film-number>23884480</film-number>
+<form-name>Quarterly report [Sections 13 or 15(d)]</form-name>
+<size>7 MB</size>
+<xbrl_href>https://www.sec.gov/cgi-bin/viewer?action=view&cik=2488&accession_number=0000002488-23-000076&xbrl_type=v</xbrl_href>
+```
 
-
-- [ ] use serde to deserialize xml or create a struct for the xml
+- [x] use serde to deserialize xml or create a struct for the xml
+- [x] split by \n
+- [x] remove lines that contain href sign
+- [x] prepend and append xml string with Filing
 - [ ] build get_latest_10Qs
 
 - [ ] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
@@ -36,11 +52,17 @@ I think this point will be when I create the function `fn get_latest_10Q`
 ## Design
 
 - [ ] have USER_AGENT be an environment variable
-- [ ] 
+- [ ]
 
 ## Commands
 
 cargo t -- --nocapture
 
 ## References
+
 - [py-edgar](https://github.com/joeyism/py-edgar/tree/master)
+
+
+## Known Bugs
+
+- [ ] The serde_xml_rs::from_str function fails for deserializing values that contain "=" sign.

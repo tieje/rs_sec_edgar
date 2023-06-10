@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 atom_syndication = { version = "0.11", features = ["with-serde"] }
+log = { version = "0.4.18", features = ["max_level_info", "release_max_level_info"] }
 regex = "1.8.4"
 reqwest = { version = "0.11.18", features = ["gzip", "deflate", "json"] }
 serde = "1.0.164"

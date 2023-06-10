@@ -42,7 +42,11 @@ I think this point will be when I create the function `fn get_latest_10Q`
 - [x] split by \n
 - [x] remove lines that contain href sign
 - [x] prepend and append xml string with Filing
+- [x] create document module
 - [ ] build get_latest_10Qs
+- [ ] it would be great to function to show the query that is constructed based on what has been added
+
+
 
 - [ ] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
 - [ ] read references

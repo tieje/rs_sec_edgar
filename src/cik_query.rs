@@ -5,40 +5,40 @@ use std::path::{Path, PathBuf};
 const TICKER_URL: &str = "https://www.sec.gov/include/ticker.txt";
 
 #[derive(Debug, PartialEq)]
-pub enum EdgarLocation {
+pub enum CIKDictionaryLocation {
     FilePath(PathBuf),
     Url(Url),
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Edgar {
-    pub(crate) location: EdgarLocation,
+pub struct CIKQuery {
+    location: CIKDictionaryLocation,
 }
-impl Edgar {
-    pub fn new(file_path: Option<&str>) -> Edgar {
+impl CIKQuery {
+    pub fn new(file_path: Option<&str>) -> CIKQuery {
         let path_or_default = file_path.unwrap_or("./ticker.txt");
         if Path::new(path_or_default).is_file() {
-            Edgar::ticker_file_location(path_or_default)
+            CIKQuery::ticker_file_location(path_or_default)
         } else {
-            Edgar::default_ticker_url_location()
+            CIKQuery::default_ticker_url_location()
         }
     }
-    pub fn ticker_file_location(path: &str) -> Edgar {
+    pub fn ticker_file_location(path: &str) -> CIKQuery {
         let path = Path::new(path);
-        Edgar {
-            location: EdgarLocation::FilePath(path.to_path_buf()),
+        CIKQuery {
+            location: CIKDictionaryLocation::FilePath(path.to_path_buf()),
         }
     }
-    pub fn default_ticker_url_location() -> Edgar {
+    pub fn default_ticker_url_location() -> CIKQuery {
         let url = Url::parse(TICKER_URL).expect("SEC ticker URL is incorrect");
-        Edgar {
-            location: EdgarLocation::Url(url),
+        CIKQuery {
+            location: CIKDictionaryLocation::Url(url),
         }
     }
     pub async fn get_cik(&self, ticker: &str) -> Option<String> {
         match &self.location {
-            EdgarLocation::Url(location) => get_cik_from_web(location, ticker).await,
-            EdgarLocation::FilePath(location) => get_cik_from_file(location, ticker),
+            CIKDictionaryLocation::Url(location) => get_cik_from_web(location, ticker).await,
+            CIKDictionaryLocation::FilePath(location) => get_cik_from_file(location, ticker),
         }
     }
 }
@@ -53,16 +53,22 @@ mod tests {
     https://www.sec.gov/include/ticker.txt"]
     fn edgar_valid_file_path() {
         let path: &str = "./ignore/ticker.txt";
-        assert_eq!(Edgar::new(Some(path)), Edgar::ticker_file_location(path))
+        assert_eq!(
+            CIKQuery::new(Some(path)),
+            CIKQuery::ticker_file_location(path)
+        )
     }
     #[test]
     fn edgar_invalid_file_path() {
         let file = "not/even/real";
-        assert_eq!(Edgar::new(Some(file)), Edgar::default_ticker_url_location())
+        assert_eq!(
+            CIKQuery::new(Some(file)),
+            CIKQuery::default_ticker_url_location()
+        )
     }
     #[test]
     fn edgar_no_file_path() {
-        assert_eq!(Edgar::new(None), Edgar::default_ticker_url_location())
+        assert_eq!(CIKQuery::new(None), CIKQuery::default_ticker_url_location())
     }
     #[test]
     fn test_parse_string_for_cik() {
@@ -82,7 +88,7 @@ mod tests {
         let answer = "831001";
         let ticker = "c";
         let path: &str = "./ignore/ticker.txt";
-        let edgar = Edgar::new(Some(path));
+        let edgar = CIKQuery::new(Some(path));
         let res = edgar.get_cik(ticker).await;
         match res {
             Some(r) => assert_eq!(r.as_str(), answer),
@@ -94,7 +100,7 @@ mod tests {
     async fn test_edgar_get_cik_from_web() {
         let answer = "831001";
         let ticker = "c";
-        let edgar = Edgar::new(None);
+        let edgar = CIKQuery::new(None);
         let res = edgar.get_cik(ticker).await;
         match res {
             Some(r) => assert_eq!(r.as_str(), answer),

@@ -61,7 +61,6 @@ let a = document.querySelector(
 6/11/2023
 
 `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=&dateb=&owner=include&count=10&search_text=s`
-
 - missing dateb and type
   `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10Q&dateb=20230101&owner=include&count=10&search_text=s`
 
@@ -73,6 +72,7 @@ let a = document.querySelector(
   - dateb=20230101
     - optional, but can easily be defined by user
   - owner=include
+    - only three options
   - count=10
   - search_text=s
 

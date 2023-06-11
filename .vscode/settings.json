@@ -1,6 +1,11 @@
 {
     "cSpell.words": [
+        "dateb",
         "HAMDZ",
         "reqwest"
+    ],
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml",
+        "./Cargo.toml"
     ]
 }

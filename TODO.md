@@ -23,22 +23,6 @@ I think this point will be when I create the function `fn get_latest_10Q`
 
 6/10/2023
 
-`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=&dateb=&owner=include&count=10&search_text=s`
-
-- missing dateb and type
-  `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10Q&dateb=20230101&owner=include&count=10&search_text=s`
-
-- https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany
-  - CIK=0000002488
-    - many possibilities
-  - type=10Q
-    - many filing types
-  - dateb=20230101
-    -
-  - owner=include
-  - count=10
-  - search_text=s
-
 ```xml
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <accession-number>0000002488-23-000076</accession-number>
@@ -73,8 +57,30 @@ let a = document.querySelector(
 - [x] split by \n
 - [x] remove lines that contain href sign
 - [x] prepend and append xml string with Filing
-- [ ] add match arms by completing the script
+
+6/11/2023
+
+`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=&dateb=&owner=include&count=10&search_text=s`
+
+- missing dateb and type
+  `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10Q&dateb=20230101&owner=include&count=10&search_text=s`
+
+- https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany
+  - CIK=0000002488
+    - many possibilities in the thousands
+  - type=10Q
+    - many filing types but only in the hundreds
+  - dateb=20230101
+    - optional, but can easily be defined by user
+  - owner=include
+  - count=10
+  - search_text=s
+
+- [x] add match arms to filing_types
 - [ ] create edgar_query_builder
+- [ ] create an option to insert a date
+- [ ] create documentation to show how to format date
+- [ ] sort functions in utils.rs file into their submodules
 
 - [ ] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
 - [ ] read references

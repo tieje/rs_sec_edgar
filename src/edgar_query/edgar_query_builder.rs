@@ -51,7 +51,7 @@ impl EdgarQueryBuilder {
         );
         EdgarQuery { query }
     }
-    pub fn insert_filing_type(&mut self, filing_type: FilingInput) {
+    pub fn set_filing_type(&mut self, filing_type: FilingInput) {
         match filing_type {
             FilingInput::TypeStr(f) => {
                 self.filing_type = Filing::validate_filing_type_string(f.as_str());
@@ -67,9 +67,9 @@ impl EdgarQueryBuilder {
     /// ```rs
     /// let answer = "0000078003";
     /// let query = EdgarQueryBuilder::new("78003");
-    /// query.insert_date("20230105")
+    /// query.set_dateb("20230105")
     /// ```
-    pub fn insert_dateb(&mut self, yyyymmdd: &str) {
+    pub fn set_dateb(&mut self, yyyymmdd: &str) {
         self.dateb = yyyymmdd.to_string();
     }
 }
@@ -89,17 +89,17 @@ mod tests {
         assert_eq!(sample().cik.as_str(), answer)
     }
     #[test]
-    fn edgar_query_builder_insert_filing_type() {
+    fn edgar_query_builder_set_filing_type() {
         let answer = "10-K";
         let mut query = sample();
-        query.insert_filing_type(TypeF(_10K));
+        query.set_filing_type(TypeF(_10K));
         assert_eq!(query.filing_type.as_str(), answer)
     }
     #[test]
-    fn edgar_query_builder_insert_dateb() {
+    fn edgar_query_builder_set_dateb() {
         let answer = "20230105";
         let mut query = sample();
-        query.insert_dateb(TypeF(_10K));
-        assert_eq!(query.filing_type.as_str(), answer)
+        query.set_dateb(&answer);
+        assert_eq!(query.dateb.as_str(), answer)
     }
 }

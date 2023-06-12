@@ -1,13 +1,20 @@
 use crate::utils;
 
-use super::filing_types::{Filing, FilingType};
+use super::{
+    filing_types::{Filing, FilingType},
+    owner::{Owner, OwnerOptions},
+};
 
 #[derive(Debug, PartialEq)]
 pub enum FilingInput {
     TypeStr(String),
     TypeF(FilingType),
 }
-
+#[derive(Debug, PartialEq)]
+pub enum OwnerInput {
+    TypeStr(String),
+    TypeOwner(OwnerOptions),
+}
 #[derive(Debug, PartialEq)]
 
 struct EdgarQuery {
@@ -65,12 +72,21 @@ impl EdgarQueryBuilder {
     ///
     /// For example, for January 5th, 2023:
     /// ```rs
-    /// let answer = "0000078003";
-    /// let query = EdgarQueryBuilder::new("78003");
+    /// let example_query = EdgarQueryBuilder::new("78003");
     /// query.set_dateb("20230105")
     /// ```
     pub fn set_dateb(&mut self, yyyymmdd: &str) {
         self.dateb = yyyymmdd.to_string();
+    }
+    pub fn set_owner(&mut self, owner: OwnerInput) {
+        match owner {
+            OwnerInput::TypeStr(ow) => {
+                self.filing_type = Owner::validate_owner_string(ow.as_str());
+            }
+            OwnerInput::TypeOwner(ow) => {
+                self.filing_type = Owner::to_string(ow);
+            }
+        }
     }
 }
 

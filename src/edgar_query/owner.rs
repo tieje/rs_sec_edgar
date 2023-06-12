@@ -14,11 +14,14 @@ impl Owner {
             _ => panic!("owner option does not exist"),
         }
     }
-    pub fn to_str(owner_option: OwnerOptions) -> String {
+    pub fn to_string(owner_option: OwnerOptions) -> String {
         match owner_option {
             OwnerOptions::INCLUDE => "include".to_string(),
             OwnerOptions::EXCLUDE => "exclude".to_string(),
             OwnerOptions::ONLY => "only".to_string(),
         }
+    }
+    pub fn validate_owner_string(owner: &str) -> String {
+        Owner::to_string(Owner::from_str(owner))
     }
 }

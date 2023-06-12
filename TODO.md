@@ -64,7 +64,7 @@ let a = document.querySelector(
 - missing dateb and type
   `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10Q&dateb=20230101&owner=include&count=10&search_text=s`
 
-- https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany
+- https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&
   - CIK=0000002488
     - many possibilities in the thousands
   - type=10Q

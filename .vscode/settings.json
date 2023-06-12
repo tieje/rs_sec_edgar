@@ -1,8 +1,22 @@
 {
     "cSpell.words": [
+        "CFPORTAL",
         "dateb",
         "HAMDZ",
-        "reqwest"
+        "MANR",
+        "MSDW",
+        "NCEN",
+        "NCSR",
+        "NMFP",
+        "NPORT",
+        "NRSRO",
+        "reqwest",
+        "SBSE",
+        "SBSEA",
+        "SBSEBD",
+        "SBSEC",
+        "SBSEW",
+        "WBAPP"
     ],
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",

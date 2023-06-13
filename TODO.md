@@ -87,10 +87,8 @@ let a = document.querySelector(
 
 6/13/2023
 
-- [ ] create example
-- [ ] `get_filing_content_value` function
-- [ ] create a `get filings` shortcut function
-- [ ] create convenience functions
+- [x] create convenience functions
+- [x] finish edgar module
 
 - [ ] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
 - [ ] read references

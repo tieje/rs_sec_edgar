@@ -86,7 +86,7 @@ pub struct FilingContentValue {
 }
 
 impl FilingContentValue {
-    pub fn new(content: Content) -> FilingContentValue {
+    pub fn new(content: Content) -> Self {
         let value = content.value.unwrap();
         let mut processed_values = value
             .split("\n")
@@ -97,7 +97,7 @@ impl FilingContentValue {
             .join("");
         processed_values.insert_str(0, "<ContentValue>");
         processed_values.push_str("</ContentValue>");
-        let filing: FilingContentValue = from_str(processed_values.as_str()).unwrap();
+        let filing: Self = from_str(processed_values.as_str()).unwrap();
         filing
     }
 }
@@ -116,8 +116,7 @@ mod tests {
     fn test_reading_atom() {
         let file = File::open("./ignore/atom_test.xml").unwrap();
         let feed = Feed::read_from(BufReader::new(file)).unwrap();
-        let first_entry_content = feed
-            .entries
+        let first_entry_content = feed.entries
             .first()
             .unwrap()
             .content

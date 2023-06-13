@@ -50,7 +50,6 @@ impl CIKQuery {
     }
     pub async fn get_cik_from_web(location: &Url, ticker: &str) -> Option<String> {
         let response = edgar_client()
-            .unwrap()
             .get(location.as_str())
             .send()
             .await

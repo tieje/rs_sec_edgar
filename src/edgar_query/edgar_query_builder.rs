@@ -207,7 +207,7 @@ mod tests {
     }
     #[test]
     fn edgar_query_builder_build() {
-        let answer = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000078003&type=10-k&dateb=&owner=include&count=20&search_text=".to_lowercase();
+        let answer = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000078003&type=10-k&dateb=&owner=include&count=20&search_text=&output=atom".to_lowercase();
         let query = sample()
             .set_count(TypeU8(20))
             .set_filing_type(TypeFiling(_10K))

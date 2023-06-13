@@ -8,7 +8,7 @@ use super::{
 #[derive(Debug, PartialEq)]
 pub enum FilingInput {
     TypeStr(String),
-    TypeF(FilingType),
+    TypeFiling(FilingType),
 }
 #[derive(Debug, PartialEq)]
 pub enum OwnerInput {
@@ -16,12 +16,17 @@ pub enum OwnerInput {
     TypeOwner(OwnerOptions),
 }
 #[derive(Debug, PartialEq)]
+pub enum CountInput {
+    TypeStr(String),
+    TypeU8(u8),
+}
+#[derive(Debug, PartialEq)]
 
-struct EdgarQuery {
+pub struct EdgarQuery {
     query: String,
 }
 #[derive(Debug, PartialEq)]
-struct EdgarQueryBuilder {
+pub struct EdgarQueryBuilder {
     base: String,
     cik: String,
     filing_type: String,
@@ -63,7 +68,7 @@ impl EdgarQueryBuilder {
             FilingInput::TypeStr(f) => {
                 self.filing_type = Filing::validate_filing_type_string(f.as_str());
             }
-            FilingInput::TypeF(f) => {
+            FilingInput::TypeFiling(f) => {
                 self.filing_type = Filing::to_string(f);
             }
         }
@@ -78,6 +83,12 @@ impl EdgarQueryBuilder {
     pub fn set_dateb(&mut self, yyyymmdd: &str) {
         self.dateb = yyyymmdd.to_string();
     }
+    /// There are three options: "include", "exclude", and "only".
+    ///
+    /// Owner refers to individuals who own significant amounts of the company's stock.
+    /// - "include" means include all documents regardless of the source.
+    /// - "exclude" means exclude documents related to the company's director or officer ownership.
+    /// - "only" means only show documents related to the company's director or officer ownership.
     pub fn set_owner(&mut self, owner: OwnerInput) {
         match owner {
             OwnerInput::TypeStr(ow) => {
@@ -88,13 +99,26 @@ impl EdgarQueryBuilder {
             }
         }
     }
+    /// The SEC's EDGAR apparently provides filings only in multiples of 10, the lowest number being 10, the highest being 100.
+    /// 
+    /// Whatever number is used will be rounded down to the greatest multiple of 10, up to 100.
+    /// 
+    /// For example, a string value of "200" will be rounded down to 100.
+    /// 
+    /// 19 gets rounded down to 10.
+    pub fn set_count(&mut self, count: CountInput) {
+        match count {
+            CountInput::TypeStr(c) => self.count = c,
+            CountInput::TypeU8(c) => self.count = c.to_string(),
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::edgar_query::filing_types::FilingType::_10K;
-    use FilingInput::TypeF;
+    use FilingInput::TypeFiling;
 
     fn sample() -> EdgarQueryBuilder {
         EdgarQueryBuilder::new("78003")
@@ -108,7 +132,7 @@ mod tests {
     fn edgar_query_builder_set_filing_type() {
         let answer = "10-K";
         let mut query = sample();
-        query.set_filing_type(TypeF(_10K));
+        query.set_filing_type(TypeFiling(_10K));
         assert_eq!(query.filing_type.as_str(), answer)
     }
     #[test]
@@ -117,5 +141,19 @@ mod tests {
         let mut query = sample();
         query.set_dateb(&answer);
         assert_eq!(query.dateb.as_str(), answer)
+    }
+    #[test]
+    fn edgar_query_builder_set_owner() {
+        let answer = "only";
+        let mut query = sample();
+        query.set_dateb(&answer);
+        assert_eq!(query.dateb.as_str(), answer)
+    }
+    #[test]
+    fn edgar_query_builder_set_count() {
+        let answer = 10;
+        let mut query = sample();
+        query.set_count(CountInput::TypeU8(answer));
+        assert_eq!(query.dateb.as_str(), "10")
     }
 }

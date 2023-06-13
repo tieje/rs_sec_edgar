@@ -60,6 +60,10 @@ let a = document.querySelector(
 
 6/11/2023
 
+- [x] add match arms to filing_types
+
+6/12/2023
+
 `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=&dateb=&owner=include&count=10&search_text=s`
 - missing dateb and type
   `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10Q&dateb=20230101&owner=include&count=10&search_text=s`
@@ -76,7 +80,6 @@ let a = document.querySelector(
   - count=10
   - search_text=s
 
-- [x] add match arms to filing_types
 - [ ] create edgar_query_builder
 - [ ] create an option to insert a date
 - [ ] create documentation to show how to format date

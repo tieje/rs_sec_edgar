@@ -80,10 +80,14 @@ let a = document.querySelector(
   - count=10
   - search_text=s
 
-- [ ] create edgar_query_builder
-- [ ] create an option to insert a date
-- [ ] create documentation to show how to format date
-- [ ] sort functions in utils.rs file into their submodules
+- [x] create edgar_query_builder
+- [x] create an option to insert a date
+- [x] create documentation to show how to format date
+- [x] sort functions in utils.rs file into their submodules
+
+6/13/2023
+
+- [ ] create example
 
 - [ ] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
 - [ ] read references

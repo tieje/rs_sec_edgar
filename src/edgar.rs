@@ -6,7 +6,7 @@ use reqwest::{
 const HEADER_ACCEPT_ENCODING: HeaderValue = HeaderValue::from_static("gzip, deflate");
 const HEADER_HOST: HeaderValue = HeaderValue::from_static("www.sec.gov");
 
-pub fn sec_client() -> Result<Client, reqwest::Error> {
+pub fn edgar_client() -> Result<Client, reqwest::Error> {
     let mut headers = HeaderMap::new();
     headers.insert(ACCEPT_ENCODING, HEADER_ACCEPT_ENCODING);
     headers.insert(HOST, HEADER_HOST);
@@ -42,10 +42,13 @@ mod tests {
             .set_filing_type(FilingInput::TypeFiling(_10Q))
             .build()
             .unwrap();
-        let _response = sec_client()
+        let _response = edgar_client()
             .unwrap()
             .get(edgar_query.as_str())
             .send()
+            .await
+            .unwrap()
+            .text()
             .await
             .unwrap();
         assert!(true)

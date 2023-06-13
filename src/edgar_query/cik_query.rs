@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::edgar::sec_client;
+use crate::edgar::edgar_client;
 
 const TICKER_URL: &str = "https://www.sec.gov/include/ticker.txt";
 
@@ -49,7 +49,7 @@ impl CIKQuery {
         }
     }
     pub async fn get_cik_from_web(location: &Url, ticker: &str) -> Option<String> {
-        let response = sec_client()
+        let response = edgar_client()
             .unwrap()
             .get(location.as_str())
             .send()

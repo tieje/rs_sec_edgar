@@ -8,7 +8,12 @@ homepage = "https://github.com/tieje/rs_sec_edgar"
 documentation = "https://github.com/tieje/rs_sec_edgar"
 repository = "https://github.com/tieje/rs_sec_edgar"
 readme = "README.md"
-
+exclude = [
+    ".cargo/",
+    ".vscode/",
+    ".ignore/",
+    "TODO.md"
+]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

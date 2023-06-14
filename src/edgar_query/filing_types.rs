@@ -1,8 +1,7 @@
 //! This module exists to aid users with setting the Filing Type.
 //! You can check out a complete list of filing types and their forms [here](https://www.sec.gov/forms).
 
-/// Filing types taken from this site
-/// https://www.sec.gov/forms
+/// Filing types taken from [this site](https://www.sec.gov/forms)
 #[allow(missing_docs)]
 #[derive(Debug, PartialEq)]
 pub enum FilingTypeOption {

@@ -91,10 +91,15 @@ let a = document.querySelector(
 - [x] finish edgar module
 
 - [x] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
-- [ ] figure how to publish a crate
+- [x] figure how to publish a crate
+  - https://doc.rust-lang.org/cargo/reference/publishing.html
+
+6/14/2023
+
+- [x] ~~set up rust doc~~
+  - https://doc.rust-lang.org/rustdoc/what-is-rustdoc.html
 - [ ] learn about versioning
-- [ ] set up rust doc
-- [ ] 
+  - https://doc.rust-lang.org/cargo/reference/semver.html
 
 ## Commands
 

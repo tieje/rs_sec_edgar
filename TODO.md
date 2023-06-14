@@ -90,8 +90,7 @@ let a = document.querySelector(
 - [x] create convenience functions
 - [x] finish edgar module
 
-- [ ] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
-- [ ] read references
+- [x] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
 - [ ] figure how to publish a crate
 - [ ] learn about versioning
 

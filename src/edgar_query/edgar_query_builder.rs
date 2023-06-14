@@ -1,59 +1,82 @@
+//! This module provides a way to build the URL query that will be used to query EDGAR.
+
 use super::{
-    filing_types::{Filing, FilingType},
+    filing_types::{Filing, FilingTypeOption},
     owner::{Owner, OwnerOptions},
 };
 use reqwest::Url;
 use url::ParseError;
 
+#[allow(missing_docs)]
 #[derive(Debug, PartialEq)]
 pub enum FilingInput {
     TypeStr(String),
-    TypeFiling(FilingType),
+    TypeFiling(FilingTypeOption),
 }
+#[allow(missing_docs)]
 #[derive(Debug, PartialEq)]
 pub enum OwnerInput {
     TypeStr(String),
     TypeOwner(OwnerOptions),
 }
+#[allow(missing_docs)]
 #[derive(Debug, PartialEq)]
 pub enum CountInput {
     TypeStr(String),
     TypeU8(u8),
 }
+/// Build a URL HTTPS query that will be used to query EDGAR
+/// ```
+/// use sec_edgar::edgar_query::edgar_query_builder::EdgarQueryBuilder;
+/// use sec_edgar::edgar_query::edgar_query_builder::FilingInput;
+/// use reqwest::Url;
+/// let query_url: Url = EdgarQueryBuilder::new("78003")
+///     .set_filing_type(FilingInput::TypeStr("10-K".to_string()))
+///     .build()
+///     .unwrap();
+/// ```
 #[derive(Debug, PartialEq)]
 pub struct EdgarQueryBuilder {
-    base: String,
-    cik: String,
-    filing_type: String,
-    dateb: String,
-    owner: String,
-    count: String,
-    search_text: String,
+    #[allow(missing_docs)]
+    pub base: String,
+    #[allow(missing_docs)]
+    pub cik: String,
+    #[allow(missing_docs)]
+    pub filing_type: String,
+    #[allow(missing_docs)]
+    pub dateb: String,
+    #[allow(missing_docs)]
+    pub owner: String,
+    #[allow(missing_docs)]
+    pub count: String,
+    #[allow(missing_docs)]
+    pub search_text: String,
 }
-/// Build a raw HTTPS query to be used for EDGAR
-/// ```rs
-///
-///
-/// ```
 impl EdgarQueryBuilder {
     /// Instantiating a query builder with the following defaults:
-    /// ```rs
-    /// let base = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&".to_string();
-    /// let cik = utils::add_leading_zeros_to_cik(short_cik);
-    /// let default = "".to_string();
-    /// EdgarQueryBuilder {
-    /// base,
-    /// cik,
-    /// filing_type: default.clone(),
-    /// dateb: default.clone(),
-    /// owner: "include".to_string(),
-    /// count: "10".to_string(),
-    /// search_text: default,
+    /// ```
+    /// use sec_edgar::edgar_query::edgar_query_builder::{add_leading_zeros_to_cik, EdgarQueryBuilder};
+    /// 
+    /// fn main() {
+    ///     let base = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&".to_string();
+    ///     let short_cik = "78003";
+    ///     let cik = add_leading_zeros_to_cik(short_cik);
+    ///     let default = "".to_string();
+    ///     let default_build = EdgarQueryBuilder {
+    ///         base,
+    ///         cik,
+    ///         filing_type: default.clone(),
+    ///         dateb: default.clone(),
+    ///         owner: "include".to_string(),
+    ///         count: "10".to_string(),
+    ///         search_text: default,
+    ///     };
+    /// }
     /// ```
     /// It is assumed that the CIK is valid.
     pub fn new(short_cik: &str) -> Self {
         let base = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&".to_string();
-        let cik = Self::add_leading_zeros_to_cik(short_cik);
+        let cik = add_leading_zeros_to_cik(short_cik);
         let default = "".to_string();
         Self {
             base,
@@ -64,15 +87,6 @@ impl EdgarQueryBuilder {
             count: "10".to_string(),
             search_text: default,
         }
-    }
-    /// EDGAR queries require a CIK with ten digits, however, most CIKs have less than ten digits.
-    /// Leading zeros must be added to the CIK to reach this ten digit requirement.
-    pub fn add_leading_zeros_to_cik(cik: &str) -> String {
-        let mut result = cik.to_owned();
-        while result.len() < 10 {
-            result.insert_str(0, "0");
-        }
-        result
     }
     /// Builds and returns the raw HTTPS query that can be used to query EDGAR.
     pub fn build(&self) -> Result<Url, ParseError> {
@@ -161,10 +175,20 @@ impl EdgarQueryBuilder {
     }
 }
 
+/// EDGAR queries require a CIK with ten digits, however, most CIKs have less than ten digits.
+/// Leading zeros must be added to the CIK to reach this ten digit requirement.
+pub fn add_leading_zeros_to_cik(cik: &str) -> String {
+    let mut result = cik.to_owned();
+    while result.len() < 10 {
+        result.insert_str(0, "0");
+    }
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::edgar_query::filing_types::FilingType::_10K;
+    use crate::edgar_query::filing_types::FilingTypeOption::_10K;
     use CountInput::TypeU8;
     use FilingInput::TypeFiling;
 
@@ -174,7 +198,7 @@ mod tests {
     #[test]
     fn edgar_query_builder_adding_leading_zeros_to_cik() {
         let answer = "0000000123".to_string();
-        assert_eq!(EdgarQueryBuilder::add_leading_zeros_to_cik("123"), answer)
+        assert_eq!(add_leading_zeros_to_cik("123"), answer)
     }
     #[test]
     fn edgar_query_builder_new() {

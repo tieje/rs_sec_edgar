@@ -2,6 +2,12 @@
 name = "sec_edgar"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "This crate provides tools to query the SEC's EDGAR API."
+homepage = "https://github.com/tieje/rs_sec_edgar"
+documentation = "https://github.com/tieje/rs_sec_edgar"
+repository = "https://github.com/tieje/rs_sec_edgar"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

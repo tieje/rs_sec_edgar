@@ -93,11 +93,8 @@ let a = document.querySelector(
 - [x] write documentation for everything. Include examples where necessary. [Tests in examples might be necessary](https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html)
 - [ ] figure how to publish a crate
 - [ ] learn about versioning
-
-## Design
-
-- [ ] have USER_AGENT be an environment variable
-- [ ]
+- [ ] set up rust doc
+- [ ] 
 
 ## Commands
 

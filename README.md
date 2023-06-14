@@ -11,7 +11,7 @@ USER_AGENT="Sample Company Name AdminContact@<sample company domain>.com"
 ```
 
 Sample Query:
-```rs
+```rust
 use sec_edgar::edgar::{edgar_client, get_feed_entries, get_feed_entry_content};
 use sec_edgar::edgar_query::cik_query::CIKQuery;
 use sec_edgar::edgar_query::filing_types::FilingTypeOption::_10Q;

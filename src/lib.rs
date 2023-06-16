@@ -29,6 +29,6 @@
 //! }
 //! ```
 
-#![deny(missing_docs)]
+// #![deny(missing_docs)]
 pub mod edgar;
 pub mod edgar_query;

@@ -1,12 +1,12 @@
 //! This module holds functions that can be used to query the SEC's EDGAR.
-//! 
+//!
 //! Usage:
 //! ```
 //! use sec_edgar::edgar::{edgar_client, get_feed_entries, get_feed_entry_content};
 //! use sec_edgar::edgar_query::cik_query::CIKQuery;
 //! use sec_edgar::edgar_query::filing_types::FilingTypeOption::_10Q;
 //! use sec_edgar::edgar_query::edgar_query_builder::{FilingInput, EdgarQueryBuilder};
-//! 
+//!
 //! async fn some_func() {
 //!     let ticker = "c";
 //!     // To save yourself a trip, you can store the file locally and query it instead.
@@ -34,10 +34,20 @@ use reqwest::{
     header::{HeaderMap, HeaderValue, ACCEPT_ENCODING, HOST, USER_AGENT},
     Client,
 };
+use std::io;
 use url::Url;
 
 const HEADER_ACCEPT_ENCODING: HeaderValue = HeaderValue::from_static("gzip, deflate");
 const HEADER_HOST: HeaderValue = HeaderValue::from_static("www.sec.gov");
+
+#[derive(Debug)]
+pub enum Error {
+    RegexErr(regex::Error),
+    CIKNotFound,
+    FailedToReadLine(io::Error),
+    EDGARRequestFailed(reqwest::Error),
+    EDGARNoTextInResponse(reqwest::Error),
+}
 
 /// There is additional information in the atom formatted feed that can be extracted if desired.
 /// An example of such info prior to an entry is shown below.
@@ -62,7 +72,7 @@ const HEADER_HOST: HeaderValue = HeaderValue::from_static("www.sec.gov");
 /// </entry>
 /// <!-- snip -->
 /// ```
-/// 
+///
 /// Usage:
 /// ```
 /// use sec_edgar::edgar::{edgar_client, get_feed};
@@ -101,7 +111,7 @@ pub async fn get_feed(client: Client, query_url: Url) -> Feed {
 /// </entry>
 /// <!-- snip -->
 /// ```
-/// 
+///
 /// Usage:
 /// ```
 /// use sec_edgar::edgar::{edgar_client, get_feed_entries};
@@ -118,7 +128,7 @@ pub async fn get_feed_entries(client: Client, query_url: Url) -> Vec<Entry> {
 }
 /// Get the content of a feed entry.
 /// Because the serde-xml-rs crate fails at parsing XML values with an `=` symbol, URL links have been removed.
-/// 
+///
 /// Usage:
 /// ```
 /// use sec_edgar::edgar::{edgar_client, get_feed_entry_content, get_feed_entries};
@@ -143,7 +153,7 @@ pub async fn get_feed_entry_content(entry: &Entry) -> FilingContentValue {
 /// Sample Company Name AdminContact@<sample company domain>.com
 /// ```
 /// For Rust apps, I recommend defining it in [`/your_project/.cargo/config.toml`](https://doc.rust-lang.org/cargo/reference/config.html#hierarchical-structure)
-/// 
+///
 /// Usage:
 /// ```
 /// use sec_edgar::edgar::edgar_client;

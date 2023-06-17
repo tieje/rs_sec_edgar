@@ -108,8 +108,8 @@ let a = document.querySelector(
 - [x] propagate errors with Result<> instead of panicking. Use an enum of errors to allow this
 - [x] bump up version to 1.0.0
 - [x] update changelog
-- [ ] push to main
-- [ ] publish to crates.io
+- [x] push to main
+- [x] publish to crates.io
 
 ## Commands
 

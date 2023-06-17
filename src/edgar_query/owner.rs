@@ -1,6 +1,8 @@
 //! This module exists to aid users with setting the Owner.
 //! Owner refers to individuals who own significant amounts of the company's stock.
 
+use crate::Error;
+
 /// These are the options for owner allowed by EDGAR.
 #[derive(Debug, PartialEq)]
 pub enum OwnerOptions {
@@ -18,12 +20,12 @@ impl Owner {
     /// Panics for strings that are not a string representation of an owner option.
     /// See [OwnerOptions] for a list of owner options.
     /// String input is **case-insensitive**
-    pub fn from_str(owner_option: &str) -> OwnerOptions {
+    pub fn from_str(owner_option: &str) -> Result<OwnerOptions, Error> {
         match owner_option.to_lowercase().as_str() {
-            "include" => OwnerOptions::INCLUDE,
-            "exclude" => OwnerOptions::EXCLUDE,
-            "only" => OwnerOptions::ONLY,
-            _ => panic!("owner option does not exist"),
+            "include" => Ok(OwnerOptions::INCLUDE),
+            "exclude" => Ok(OwnerOptions::EXCLUDE),
+            "only" => Ok(OwnerOptions::ONLY),
+            _ => Err(Error::OwnerOptionNotFound),
         }
     }
     /// Converts an [OwnerOptions] to a lowercase string representation of that option.
@@ -36,7 +38,8 @@ impl Owner {
     }
     /// Validates by converting string to an [OwnerOptions] and back.
     /// Panics if the string is not a real option.
-    pub fn validate_owner_string(owner: &str) -> String {
-        Owner::to_string(Owner::from_str(owner))
+    pub fn validate_owner_string(owner: &str) -> Result<String, Error> {
+        let owner = Owner::from_str(owner)?;
+        Ok(Owner::to_string(owner))
     }
 }

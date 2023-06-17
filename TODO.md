@@ -104,10 +104,12 @@ let a = document.querySelector(
 6/16/2023
 
 - [x] propagate errors for cik_query
-- [ ] propagate errors for filing_content_value
-- [ ] propagate errors with Result<> instead of panicking. Use an enum of errors to allow this
-- [ ] bump up version to 1.0.0
-- [ ] update changelog
+- [x] propagate errors for filing_content_value
+- [x] propagate errors with Result<> instead of panicking. Use an enum of errors to allow this
+- [x] bump up version to 1.0.0
+- [x] update changelog
+- [ ] push to main
+- [ ] publish to crates.io
 
 ## Commands
 

@@ -13,41 +13,34 @@
 //!     // The file can be downloaded from [here](https://www.sec.gov/include/ticker.txt).
 //!     // let cik_query = CIKQuery::new(Some("./ignore/ticker.txt"))
 //!     let cik_query = CIKQuery::new(None)
+//!         .unwrap()
 //!         .get_cik(ticker)
 //!         .await
-//!         .expect("ticker not found");
+//!         .unwrap();
 //!     let query = EdgarQueryBuilder::new(&cik_query)
 //!         .set_filing_type(FilingInput::TypeFiling(_10Q))
+//!         .unwrap()
 //!         .build()
 //!         .unwrap();
-//!     let entries = get_feed_entries(edgar_client(), query).await;
+//!     let entries = get_feed_entries(edgar_client().unwrap(), query).await.unwrap();
 //!     let filing_type = get_feed_entry_content(entries.first().unwrap())
 //!         .await
+//!         .unwrap()
 //!         .filing_type
 //!         .value;
 //! }
 //! ```
 
-use crate::edgar_query::filing_content_value::FilingContentValue;
+use crate::{edgar_query::filing_content_value::FilingContentValue, Error};
 use atom_syndication::{Entry, Feed};
 use reqwest::{
     header::{HeaderMap, HeaderValue, ACCEPT_ENCODING, HOST, USER_AGENT},
     Client,
 };
-use std::io;
 use url::Url;
 
 const HEADER_ACCEPT_ENCODING: HeaderValue = HeaderValue::from_static("gzip, deflate");
 const HEADER_HOST: HeaderValue = HeaderValue::from_static("www.sec.gov");
-
-#[derive(Debug)]
-pub enum Error {
-    RegexErr(regex::Error),
-    CIKNotFound,
-    FailedToReadLine(io::Error),
-    EDGARRequestFailed(reqwest::Error),
-    EDGARNoTextInResponse(reqwest::Error),
-}
 
 /// There is additional information in the atom formatted feed that can be extracted if desired.
 /// An example of such info prior to an entry is shown below.
@@ -78,20 +71,17 @@ pub enum Error {
 /// use sec_edgar::edgar::{edgar_client, get_feed};
 /// use url::Url;
 /// let some_url = Url::parse("https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10-K&count=10&output=atom").unwrap();
-/// let client = edgar_client();
+/// let client = edgar_client().unwrap();
 /// let feed = get_feed(client, some_url);
 /// ```
-pub async fn get_feed(client: Client, query_url: Url) -> Feed {
-    let feed = client
-        .get(query_url.as_str())
-        .send()
-        .await
-        .expect("Response error occurred with SEC")
-        .text()
-        .await
-        .expect("Error with querying text")
-        .parse::<Feed>()
-        .expect("Could not parse response text");
+pub async fn get_feed(client: Client, query_url: Url) -> Result<Feed, Error> {
+    let feed = match client.get(query_url.as_str()).send().await {
+        Err(_) => return Err(Error::GettingFeedFailed),
+        Ok(f) => match f.text().await {
+            Err(e) => Err(Error::EDGARNoTextInResponse(e)),
+            Ok(t) => t.parse::<Feed>().map_err(Error::AtomParseFailed),
+        },
+    };
     feed
 }
 
@@ -118,13 +108,13 @@ pub async fn get_feed(client: Client, query_url: Url) -> Feed {
 /// use url::Url;
 /// async fn some_func() {
 ///     let some_url = Url::parse("https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10-K&count=10&output=atom").unwrap();
-///     let client = edgar_client();
-///     let feed_entries = get_feed_entries(client, some_url).await;
+///     let client = edgar_client().unwrap();
+///     let feed_entries = get_feed_entries(client, some_url).await.unwrap();
 /// }
 /// ```
-pub async fn get_feed_entries(client: Client, query_url: Url) -> Vec<Entry> {
-    let entries = get_feed(client, query_url).await.entries;
-    entries
+pub async fn get_feed_entries(client: Client, query_url: Url) -> Result<Vec<Entry>, Error> {
+    let entries = get_feed(client, query_url).await?.entries;
+    Ok(entries)
 }
 /// Get the content of a feed entry.
 /// Because the serde-xml-rs crate fails at parsing XML values with an `=` symbol, URL links have been removed.
@@ -135,13 +125,13 @@ pub async fn get_feed_entries(client: Client, query_url: Url) -> Vec<Entry> {
 /// use url::Url;
 /// async fn some_func() {
 ///     let some_url = Url::parse("https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10-K&count=10&output=atom").unwrap();
-///     let client = edgar_client();
-///     let feed_entries = get_feed_entries(client, some_url).await;
+///     let client = edgar_client().unwrap();
+///     let feed_entries = get_feed_entries(client, some_url).await.unwrap();
 ///     let first_entry = feed_entries.first().unwrap();
 ///     let first_entry_content = get_feed_entry_content(first_entry);
 /// }
 /// ```
-pub async fn get_feed_entry_content(entry: &Entry) -> FilingContentValue {
+pub async fn get_feed_entry_content(entry: &Entry) -> Result<FilingContentValue, Error> {
     let entry_content = entry.content.clone().unwrap();
     let content = FilingContentValue::new(entry_content);
     content
@@ -159,22 +149,24 @@ pub async fn get_feed_entry_content(entry: &Entry) -> FilingContentValue {
 /// use sec_edgar::edgar::edgar_client;
 /// let client = edgar_client();
 /// ```
-pub fn edgar_client() -> Client {
+pub fn edgar_client() -> Result<Client, Error> {
     let mut headers = HeaderMap::new();
+    let user_agent = match option_env!("USER_AGENT") {
+        Some(u) => u,
+        None => return Err(Error::UserAgentEnvVarMissing),
+    };
     headers.insert(ACCEPT_ENCODING, HEADER_ACCEPT_ENCODING);
     headers.insert(HOST, HEADER_HOST);
-    headers.insert(
-        USER_AGENT,
-        HeaderValue::from_static(
-            option_env!("USER_AGENT").expect("USER_AGENT environment variable not set"),
-        ),
-    );
-    Client::builder()
+    headers.insert(USER_AGENT, HeaderValue::from_static(user_agent));
+    match Client::builder()
         .default_headers(headers)
         .deflate(true)
         .gzip(true)
         .build()
-        .expect("Building client unsuccessful.")
+    {
+        Ok(c) => Ok(c),
+        Err(e) => Err(Error::BuildingClientFailed(e)),
+    }
 }
 
 #[cfg(test)]
@@ -188,11 +180,13 @@ mod tests {
         let answer = "10-Q";
         let query = EdgarQueryBuilder::new(&cik_query)
             .set_filing_type(FilingInput::TypeFiling(_10Q))
+            .unwrap()
             .build()
             .unwrap();
-        let entries = get_feed_entries(edgar_client(), query).await;
-        let filing_type = get_feed_entry_content(entries.first().unwrap())
+        let entries = get_feed_entries(edgar_client().unwrap(), query).await;
+        let filing_type = get_feed_entry_content(entries.unwrap().first().unwrap())
             .await
+            .unwrap()
             .filing_type
             .value;
         assert_eq!(filing_type.as_str(), answer);
@@ -202,6 +196,7 @@ mod tests {
     async fn edgar_sample_query_local_file() {
         let ticker = "c";
         let cik_query = CIKQuery::new(Some("./ignore/ticker.txt"))
+            .unwrap()
             .get_cik(ticker)
             .await
             .expect("ticker not found");
@@ -211,6 +206,7 @@ mod tests {
     async fn edgar_sample_query_web() {
         let ticker = "c";
         let cik_query = CIKQuery::new(None)
+            .unwrap()
             .get_cik(ticker)
             .await
             .expect("ticker not found");

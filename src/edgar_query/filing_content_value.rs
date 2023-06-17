@@ -1,7 +1,9 @@
 //! This module is used for extracting the content type of a filing.
+use crate::Error;
 use atom_syndication::Content;
 use serde::Deserialize;
 use serde_xml_rs::from_str;
+
 /// The Unique identifier assigned to each filing.
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 pub struct AccessionNumber {
@@ -118,8 +120,11 @@ pub struct FilingContentValue {
 
 impl FilingContentValue {
     /// Instantiates the [FilingContentValue] to deserialize the content of an entry from a feed with atom format.
-    pub fn new(content: Content) -> Self {
-        let value = content.value.unwrap();
+    pub fn new(content: Content) -> Result<Self, Error> {
+        let value = match content.value {
+            Some(v) => v,
+            None => return Err(Error::FilingContentValueNotFound),
+        };
         let mut processed_values = value
             .split("\n")
             .collect::<Vec<&str>>()
@@ -130,7 +135,7 @@ impl FilingContentValue {
         processed_values.insert_str(0, "<ContentValue>");
         processed_values.push_str("</ContentValue>");
         let filing: Self = from_str(processed_values.as_str()).unwrap();
-        filing
+        Ok(filing)
     }
 }
 
@@ -150,7 +155,9 @@ mod tests {
         let feed = Feed::read_from(BufReader::new(file)).unwrap();
         let first_entry_content = feed.entries.first().unwrap().content.clone().unwrap();
         let content = FilingContentValue::new(first_entry_content);
-        dbg!(content.filing_date.value);
-        assert!(true)
+        match content {
+            Ok(_) => assert!(true),
+            Err(_) => assert!(false),
+        }
     }
 }

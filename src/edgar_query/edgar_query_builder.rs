@@ -4,6 +4,7 @@ use super::{
     filing_types::{Filing, FilingTypeOption},
     owner::{Owner, OwnerOptions},
 };
+use crate::Error;
 use reqwest::Url;
 use url::ParseError;
 
@@ -32,6 +33,7 @@ pub enum CountInput {
 /// use reqwest::Url;
 /// let query_url: Url = EdgarQueryBuilder::new("78003")
 ///     .set_filing_type(FilingInput::TypeStr("10-K".to_string()))
+///     .unwrap()
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -56,7 +58,7 @@ impl EdgarQueryBuilder {
     /// Instantiating a query builder with the following defaults:
     /// ```
     /// use sec_edgar::edgar_query::edgar_query_builder::{add_leading_zeros_to_cik, EdgarQueryBuilder};
-    /// 
+    ///
     /// fn main() {
     ///     let base = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&".to_string();
     ///     let short_cik = "78003";
@@ -102,15 +104,15 @@ impl EdgarQueryBuilder {
         query
     }
     /// If no filing type is set, the default is an empty String, in which case, all types of filings will be queried.
-    pub fn set_filing_type(mut self, filing_type: FilingInput) -> Self {
+    pub fn set_filing_type(mut self, filing_type: FilingInput) -> Result<Self, Error> {
         match filing_type {
             FilingInput::TypeStr(f) => {
-                self.filing_type = Filing::validate_filing_type_string(f.as_str());
-                self
+                self.filing_type = Filing::validate_filing_type_string(f.as_str())?;
+                Ok(self)
             }
             FilingInput::TypeFiling(f) => {
                 self.filing_type = Filing::to_string(f);
-                self
+                Ok(self)
             }
         }
     }
@@ -133,15 +135,15 @@ impl EdgarQueryBuilder {
     /// - "exclude" means exclude documents related to the company's director or officer ownership.
     /// - "only" means only show documents related to the company's director or officer ownership.
     /// If owner is not set, the default is "include".
-    pub fn set_owner(mut self, owner: OwnerInput) -> Self {
+    pub fn set_owner(mut self, owner: OwnerInput) -> Result<Self, Error> {
         match owner {
             OwnerInput::TypeStr(ow) => {
-                self.owner = Owner::validate_owner_string(ow.as_str());
-                self
+                self.owner = Owner::validate_owner_string(ow.as_str())?;
+                Ok(self)
             }
             OwnerInput::TypeOwner(ow) => {
                 self.owner = Owner::to_string(ow);
-                self
+                Ok(self)
             }
         }
     }
@@ -209,7 +211,7 @@ mod tests {
     fn edgar_query_builder_set_filing_type() {
         let answer = "10-K";
         let query = sample().set_filing_type(TypeFiling(_10K));
-        assert_eq!(query.filing_type.as_str(), answer)
+        assert_eq!(query.unwrap().filing_type.as_str(), answer)
     }
     #[test]
     fn edgar_query_builder_set_dateb() {
@@ -220,7 +222,9 @@ mod tests {
     #[test]
     fn edgar_query_builder_set_owner() {
         let answer = "only";
-        let query = sample().set_owner(OwnerInput::TypeStr(answer.to_string()));
+        let query = sample()
+            .set_owner(OwnerInput::TypeStr(answer.to_string()))
+            .unwrap();
         assert_eq!(query.owner.as_str(), answer)
     }
     #[test]
@@ -235,6 +239,7 @@ mod tests {
         let query = sample()
             .set_count(TypeU8(20))
             .set_filing_type(TypeFiling(_10K))
+            .unwrap()
             .build()
             .unwrap()
             .as_str()

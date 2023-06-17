@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 1.0.1
+6/16/2023
+- [x] updated code in README
 ## 1.0.0
 6/16/2023
 ### Added

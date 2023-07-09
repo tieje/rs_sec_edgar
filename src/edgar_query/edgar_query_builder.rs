@@ -4,7 +4,7 @@ use super::{
     filing_types::{Filing, FilingTypeOption},
     owner::{Owner, OwnerOptions},
 };
-use crate::Error;
+use crate::error::EDGARError;
 use reqwest::Url;
 use url::ParseError;
 
@@ -59,21 +59,19 @@ impl EdgarQueryBuilder {
     /// ```
     /// use sec_edgar::edgar_query::edgar_query_builder::{add_leading_zeros_to_cik, EdgarQueryBuilder};
     ///
-    /// fn main() {
-    ///     let base = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&".to_string();
-    ///     let short_cik = "78003";
-    ///     let cik = add_leading_zeros_to_cik(short_cik);
-    ///     let default = "".to_string();
-    ///     let default_build = EdgarQueryBuilder {
-    ///         base,
-    ///         cik,
-    ///         filing_type: default.clone(),
-    ///         dateb: default.clone(),
-    ///         owner: "include".to_string(),
-    ///         count: "10".to_string(),
-    ///         search_text: default,
-    ///     };
-    /// }
+    /// let base = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&".to_string();
+    /// let short_cik = "78003";
+    /// let cik = add_leading_zeros_to_cik(short_cik);
+    /// let default = "".to_string();
+    /// let default_build = EdgarQueryBuilder {
+    ///     base,
+    ///     cik,
+    ///     filing_type: default.clone(),
+    ///     dateb: default.clone(),
+    ///     owner: "include".to_string(),
+    ///     count: "10".to_string(),
+    ///     search_text: default,
+    /// };
     /// ```
     /// It is assumed that the CIK is valid.
     pub fn new(short_cik: &str) -> Self {
@@ -104,7 +102,7 @@ impl EdgarQueryBuilder {
         query
     }
     /// If no filing type is set, the default is an empty String, in which case, all types of filings will be queried.
-    pub fn set_filing_type(mut self, filing_type: FilingInput) -> Result<Self, Error> {
+    pub fn set_filing_type(mut self, filing_type: FilingInput) -> Result<Self, EDGARError> {
         match filing_type {
             FilingInput::TypeStr(f) => {
                 self.filing_type = Filing::validate_filing_type_string(f.as_str())?;
@@ -135,7 +133,7 @@ impl EdgarQueryBuilder {
     /// - "exclude" means exclude documents related to the company's director or officer ownership.
     /// - "only" means only show documents related to the company's director or officer ownership.
     /// If owner is not set, the default is "include".
-    pub fn set_owner(mut self, owner: OwnerInput) -> Result<Self, Error> {
+    pub fn set_owner(mut self, owner: OwnerInput) -> Result<Self, EDGARError> {
         match owner {
             OwnerInput::TypeStr(ow) => {
                 self.owner = Owner::validate_owner_string(ow.as_str())?;
@@ -182,7 +180,7 @@ impl EdgarQueryBuilder {
 pub fn add_leading_zeros_to_cik(cik: &str) -> String {
     let mut result = cik.to_owned();
     while result.len() < 10 {
-        result.insert_str(0, "0");
+        result.insert(0, '0');
     }
     result
 }
@@ -216,7 +214,7 @@ mod tests {
     #[test]
     fn edgar_query_builder_set_dateb() {
         let answer = "20230105";
-        let query = sample().set_dateb(&answer);
+        let query = sample().set_dateb(answer);
         assert_eq!(query.dateb.as_str(), answer)
     }
     #[test]

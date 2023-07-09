@@ -1,5 +1,5 @@
 //! This module is used for extracting the content type of a filing.
-use crate::Error;
+use crate::error::EDGARError;
 use atom_syndication::Content;
 use serde::Deserialize;
 use serde_xml_rs::from_str;
@@ -120,13 +120,12 @@ pub struct FilingContentValue {
 
 impl FilingContentValue {
     /// Instantiates the [FilingContentValue] to deserialize the content of an entry from a feed with atom format.
-    pub fn new(content: Content) -> Result<Self, Error> {
-        let value = match content.value {
-            Some(v) => v,
-            None => return Err(Error::FilingContentValueNotFound),
-        };
+    pub fn new(content: Content) -> Result<Self, EDGARError> {
+        let value = content
+            .value
+            .ok_or(EDGARError::FilingContentValueNotFound)?;
         let mut processed_values = value
-            .split("\n")
+            .split('\n')
             .collect::<Vec<&str>>()
             .into_iter()
             .filter(|&line| !line.contains("href"))
@@ -134,7 +133,7 @@ impl FilingContentValue {
             .join("");
         processed_values.insert_str(0, "<ContentValue>");
         processed_values.push_str("</ContentValue>");
-        let filing: Self = from_str(processed_values.as_str()).unwrap();
+        let filing: Self = from_str(processed_values.as_str())?;
         Ok(filing)
     }
 }
@@ -155,9 +154,6 @@ mod tests {
         let feed = Feed::read_from(BufReader::new(file)).unwrap();
         let first_entry_content = feed.entries.first().unwrap().content.clone().unwrap();
         let content = FilingContentValue::new(first_entry_content);
-        match content {
-            Ok(_) => assert!(true),
-            Err(_) => assert!(false),
-        }
+        assert!(content.is_ok())
     }
 }

@@ -32,25 +32,8 @@
 //! }
 //! ```
 
-#![deny(missing_docs)]
+// #![deny(missing_docs)]
 
 pub mod edgar;
 pub mod edgar_query;
-
-#[allow(missing_docs)]
-#[derive(Debug)]
-pub enum Error {
-    RegexErr(regex::Error),
-    CIKNotFound,
-    FailedToReadLine(std::io::Error),
-    EDGARRequestFailed(reqwest::Error),
-    EDGARNoTextInResponse(reqwest::Error),
-    BuildingClientFailed(reqwest::Error),
-    FilingTypeNotFound,
-    FilingContentValueNotFound,
-    UserAgentEnvVarMissing,
-    GettingFeedFailed,
-    AtomParseFailed(atom_syndication::Error),
-    UrlParseFailed(url::ParseError),
-    OwnerOptionNotFound,
-}
+pub mod error;

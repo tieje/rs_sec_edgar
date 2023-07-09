@@ -31,16 +31,14 @@
 //! }
 //! ```
 
-use crate::{edgar_query::filing_content_value::FilingContentValue, Error};
+use crate::edgar_query::filing_content_value::FilingContentValue;
+use crate::error::EDGARError;
 use atom_syndication::{Entry, Feed};
 use reqwest::{
     header::{HeaderMap, HeaderValue, ACCEPT_ENCODING, HOST, USER_AGENT},
     Client,
 };
 use url::Url;
-
-const HEADER_ACCEPT_ENCODING: HeaderValue = HeaderValue::from_static("gzip, deflate");
-const HEADER_HOST: HeaderValue = HeaderValue::from_static("www.sec.gov");
 
 /// There is additional information in the atom formatted feed that can be extracted if desired.
 /// An example of such info prior to an entry is shown below.
@@ -74,15 +72,16 @@ const HEADER_HOST: HeaderValue = HeaderValue::from_static("www.sec.gov");
 /// let client = edgar_client().unwrap();
 /// let feed = get_feed(client, some_url);
 /// ```
-pub async fn get_feed(client: Client, query_url: Url) -> Result<Feed, Error> {
-    let feed = match client.get(query_url.as_str()).send().await {
-        Err(_) => return Err(Error::GettingFeedFailed),
-        Ok(f) => match f.text().await {
-            Err(e) => Err(Error::EDGARNoTextInResponse(e)),
-            Ok(t) => t.parse::<Feed>().map_err(Error::AtomParseFailed),
-        },
-    };
-    feed
+pub async fn get_feed(client: Client, query_url: Url) -> Result<Feed, EDGARError> {
+    let res = client.get(query_url.as_str()).send().await?;
+    Ok(res.text().await?.parse::<Feed>()?)
+    // match client.get(query_url.as_str()).send().await {
+    //     Err(_) => Err(EDGARError::GettingFeedFailed),
+    //     Ok(f) => match f.text().await {
+    //         Err(e) => Err(EDGARError::ReqwestError(e)),
+    //         Ok(t) => t.parse::<Feed>()?
+    //     },
+    // }
 }
 
 /// Get the feed entries, which will be in atom format.
@@ -112,7 +111,7 @@ pub async fn get_feed(client: Client, query_url: Url) -> Result<Feed, Error> {
 ///     let feed_entries = get_feed_entries(client, some_url).await.unwrap();
 /// }
 /// ```
-pub async fn get_feed_entries(client: Client, query_url: Url) -> Result<Vec<Entry>, Error> {
+pub async fn get_feed_entries(client: Client, query_url: Url) -> Result<Vec<Entry>, EDGARError> {
     let entries = get_feed(client, query_url).await?.entries;
     Ok(entries)
 }
@@ -131,10 +130,9 @@ pub async fn get_feed_entries(client: Client, query_url: Url) -> Result<Vec<Entr
 ///     let first_entry_content = get_feed_entry_content(first_entry);
 /// }
 /// ```
-pub async fn get_feed_entry_content(entry: &Entry) -> Result<FilingContentValue, Error> {
+pub async fn get_feed_entry_content(entry: &Entry) -> Result<FilingContentValue, EDGARError> {
     let entry_content = entry.content.clone().unwrap();
-    let content = FilingContentValue::new(entry_content);
-    content
+    FilingContentValue::new(entry_content)
 }
 /// Returns a client that can send requests to EDGAR.
 /// Please define the `USER_AGENT` in your environment variables.
@@ -149,24 +147,20 @@ pub async fn get_feed_entry_content(entry: &Entry) -> Result<FilingContentValue,
 /// use sec_edgar::edgar::edgar_client;
 /// let client = edgar_client();
 /// ```
-pub fn edgar_client() -> Result<Client, Error> {
+pub fn edgar_client() -> Result<Client, EDGARError> {
     let mut headers = HeaderMap::new();
     let user_agent = match option_env!("USER_AGENT") {
         Some(u) => u,
-        None => return Err(Error::UserAgentEnvVarMissing),
+        None => return Err(EDGARError::UserAgentEnvVarMissing),
     };
-    headers.insert(ACCEPT_ENCODING, HEADER_ACCEPT_ENCODING);
-    headers.insert(HOST, HEADER_HOST);
+    headers.insert(ACCEPT_ENCODING, HeaderValue::from_static("gzip, deflate"));
+    headers.insert(HOST, HeaderValue::from_static("www.sec.gov"));
     headers.insert(USER_AGENT, HeaderValue::from_static(user_agent));
-    match Client::builder()
+    Ok(Client::builder()
         .default_headers(headers)
         .deflate(true)
         .gzip(true)
-        .build()
-    {
-        Ok(c) => Ok(c),
-        Err(e) => Err(Error::BuildingClientFailed(e)),
-    }
+        .build()?)
 }
 
 #[cfg(test)]

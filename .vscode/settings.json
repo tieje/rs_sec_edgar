@@ -16,6 +16,7 @@
         "SBSEBD",
         "SBSEC",
         "SBSEW",
+        "thiserror",
         "WBAPP"
     ],
     "rust-analyzer.linkedProjects": [

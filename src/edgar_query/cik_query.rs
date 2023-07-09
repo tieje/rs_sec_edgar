@@ -1,7 +1,7 @@
 //! This module provides functions to get the CIK from a ticker symbol.
 
 use crate::edgar::edgar_client;
-use crate::Error;
+use crate::error::EDGARError;
 use regex::Regex;
 use reqwest::Url;
 use std::io::BufRead;
@@ -33,7 +33,7 @@ impl CIKQuery {
     /// let ticker = Some("amd");
     /// let cik_query = CIKQuery::new(ticker);
     /// ```
-    pub fn new(file_path: Option<&str>) -> Result<CIKQuery, Error> {
+    pub fn new(file_path: Option<&str>) -> Result<CIKQuery, EDGARError> {
         let path_or_default = file_path.unwrap_or("./ticker.txt");
         if Path::new(path_or_default).is_file() {
             Ok(ticker_file_location(path_or_default))
@@ -53,7 +53,7 @@ impl CIKQuery {
     /// }
     /// ```
     /// The ticker is **case-insensitive**.
-    pub async fn get_cik(&self, ticker: &str) -> Result<String, Error> {
+    pub async fn get_cik(&self, ticker: &str) -> Result<String, EDGARError> {
         let ticker_low = ticker.to_lowercase();
         match &self.location {
             CIKDictionaryLocation::Url(location) => {
@@ -71,50 +71,29 @@ fn ticker_file_location(path: &str) -> CIKQuery {
         location: CIKDictionaryLocation::FilePath(path.to_path_buf()),
     }
 }
-fn default_ticker_url_location() -> Result<CIKQuery, Error> {
-    let url = match Url::parse(TICKER_URL) {
-        Err(e) => Err(Error::UrlParseFailed(e)),
-        Ok(u) => Ok(CIKQuery {
-            location: CIKDictionaryLocation::Url(u),
-        }),
-    };
-    url
+fn default_ticker_url_location() -> Result<CIKQuery, EDGARError> {
+    let location = CIKDictionaryLocation::Url(Url::parse(TICKER_URL)?);
+    Ok(CIKQuery { location })
 }
-async fn get_cik_from_web(location: &Url, ticker: &str) -> Result<String, Error> {
-    let response = edgar_client()?.get(location.as_str()).send().await;
-    match response {
-        Err(e) => Err(Error::EDGARRequestFailed(e)),
-        Ok(r) => {
-            let body = r.text().await;
-            match body {
-                Err(e) => Err(Error::EDGARNoTextInResponse(e)),
-                Ok(b) => find_cik_from_html(b.as_str(), ticker),
-            }
-        }
-    }
+async fn get_cik_from_web(location: &Url, ticker: &str) -> Result<String, EDGARError> {
+    let response = edgar_client()?.get(location.as_str()).send().await?;
+    let body = response.text().await?;
+    find_cik_from_html(body.as_str(), ticker)
 }
-fn get_cik_from_file(location: &PathBuf, ticker: &str) -> Result<String, Error> {
-    let file = File::open(location.as_path()).expect("failed to open file");
+fn get_cik_from_file(location: &PathBuf, ticker: &str) -> Result<String, EDGARError> {
+    let file = File::open(location.as_path())?;
     let reader = BufReader::new(file);
     for line in reader.lines() {
-        match line {
-            Err(e) => return Err(Error::FailedToReadLine(e)),
-            Ok(l) => {
-                let res = find_cik_from_line(&l, ticker);
-                match res {
-                    None => continue,
-                    Some(r) => return Ok(r),
-                };
-            }
+        let res = find_cik_from_line(&line?, ticker);
+        match res {
+            None => continue,
+            Some(r) => return Ok(r),
         };
     }
-    Err(Error::CIKNotFound)
+    Err(EDGARError::CIKNotFound)
 }
-fn find_cik_from_html(body: &str, ticker: &str) -> Result<String, Error> {
-    let ticker_cik_regex = match Regex::new(r"(?i)[a-zA-Z]+\s\d+") {
-        Ok(n) => n,
-        Err(e) => return Err(Error::RegexErr(e)),
-    };
+fn find_cik_from_html(body: &str, ticker: &str) -> Result<String, EDGARError> {
+    let ticker_cik_regex = Regex::new(r"(?i)[a-zA-Z]+\s\d+")?;
     let ticker_cik_matches = ticker_cik_regex.find_iter(body);
     for ticker_cik_match in ticker_cik_matches {
         let res = find_cik_from_line(ticker_cik_match.as_str(), ticker);
@@ -123,7 +102,7 @@ fn find_cik_from_html(body: &str, ticker: &str) -> Result<String, Error> {
             Some(r) => return Ok(r),
         };
     }
-    Err(Error::CIKNotFound)
+    Err(EDGARError::CIKNotFound)
 }
 
 fn find_cik_from_line(line: &str, ticker: &str) -> Option<String> {
@@ -172,10 +151,7 @@ mod tests {
         c	831001";
         let ticker = "c";
         let res = find_cik_from_html(body, ticker);
-        match res {
-            Ok(r) => assert_eq!(r.as_str(), "831001"),
-            _ => assert!(false),
-        }
+        assert_eq!(res.unwrap().as_str(), "831001")
     }
     #[tokio::test]
     async fn cik_query_get_cik_from_file() {
@@ -184,10 +160,7 @@ mod tests {
         let path: &str = "./ignore/ticker.txt";
         let edgar = CIKQuery::new(Some(path)).unwrap();
         let res = edgar.get_cik(ticker).await;
-        match res {
-            Ok(r) => assert_eq!(r.as_str(), answer),
-            _ => assert!(false),
-        }
+        assert_eq!(res.unwrap().as_str(), answer)
     }
     #[tokio::test]
     // #[ignore = "Expensive test and must be connected to the internet"]
@@ -196,9 +169,6 @@ mod tests {
         let ticker = "c";
         let edgar = CIKQuery::new(None).unwrap();
         let res = edgar.get_cik(ticker).await;
-        match res {
-            Ok(r) => assert_eq!(r.as_str(), answer),
-            _ => assert!(false),
-        }
+        assert_eq!(res.unwrap().as_str(), answer)
     }
 }

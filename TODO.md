@@ -65,10 +65,12 @@ let a = document.querySelector(
 6/12/2023
 
 `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=&dateb=&owner=include&count=10&search_text=s`
+
 - missing dateb and type
   `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000002488&type=10Q&dateb=20230101&owner=include&count=10&search_text=s`
 
 - https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&
+
   - CIK=0000002488
     - many possibilities in the thousands
   - type=10Q
@@ -110,6 +112,23 @@ let a = document.querySelector(
 - [x] update changelog
 - [x] push to main
 - [x] publish to crates.io
+
+7/9/2023
+
+- try is deprecated. Handle errors generically https://dev.to/nathan20/how-to-handle-errors-in-rust-a-comprehensive-guide-1cco
+- thiserror library is very useful for cutting down on repetition
+
+- [x] change mod.rs system to modern file system
+- [x] fix clippy errors
+- [ ] implement [thisError](https://crates.io/crates/thiserror)
+
+7/10/2023
+
+- [ ] implement [thisError](https://crates.io/crates/thiserror)
+- [ ] apply knowledge about lifetimes, Box, Rc, Arc
+- [ ] [use map_err() for specific error types](https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/error-handling.html#defining-your-own-error-type)
+- [ ] [impl Display, error, cause for your Errors](https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/error-handling.html#the-error-trait)
+- [ ] yank 1.0.0 and create 0.1.0 instead
 
 ## Commands
 

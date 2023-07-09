@@ -1,7 +1,7 @@
 //! This module exists to aid users with setting the Filing Type.
 //! You can check out a complete list of filing types and their forms [here](https://www.sec.gov/forms).
 
-use crate::Error;
+use crate::error::EDGARError;
 
 /// Filing types taken from [this site](https://www.sec.gov/forms)
 #[allow(missing_docs)]
@@ -158,7 +158,7 @@ impl Filing {
     /// Converts string to [FilingTypeOption].
     /// **Input is case-insensitive**.
     /// Panics if there is no [FilingTypeOption] associated with the string.
-    pub fn from_str(filing_type: &str) -> Result<FilingTypeOption, crate::Error> {
+    pub fn filing_from_str(filing_type: &str) -> Result<FilingTypeOption, EDGARError> {
         match filing_type.to_uppercase().as_str() {
             "1" => Ok(FilingTypeOption::_1),
             "1-A" => Ok(FilingTypeOption::_1A),
@@ -174,7 +174,7 @@ impl Filing {
             "10-M" => Ok(FilingTypeOption::_10M),
             "10-Q" => Ok(FilingTypeOption::_10Q),
             "11-K" => Ok(FilingTypeOption::_11K),
-            "12b-25" => Ok(FilingTypeOption::_12B25),
+            "12B-25" => Ok(FilingTypeOption::_12B25),
             "13F" => Ok(FilingTypeOption::_13F),
             "13H" => Ok(FilingTypeOption::_13H),
             "144" => Ok(FilingTypeOption::_144),
@@ -183,9 +183,9 @@ impl Filing {
             "17-H" => Ok(FilingTypeOption::_17H),
             "18" => Ok(FilingTypeOption::_18),
             "18-K" => Ok(FilingTypeOption::_18K),
-            "19b-4" => Ok(FilingTypeOption::_19B4),
-            "19b-4(e)" => Ok(FilingTypeOption::_19B4E),
-            "19b-7" => Ok(FilingTypeOption::_19B7),
+            "19B-4" => Ok(FilingTypeOption::_19B4),
+            "19B-4(E)" => Ok(FilingTypeOption::_19B4E),
+            "19B-7" => Ok(FilingTypeOption::_19B7),
             "2-E" => Ok(FilingTypeOption::_2E),
             "20-F" => Ok(FilingTypeOption::_20F),
             "24F-2" => Ok(FilingTypeOption::_24F2),
@@ -240,12 +240,12 @@ impl Filing {
             "MSDW" => Ok(FilingTypeOption::MSDW),
             "N-14" => Ok(FilingTypeOption::N14),
             "N-17D-1" => Ok(FilingTypeOption::N17D1),
-            "N-17f-1" => Ok(FilingTypeOption::N17F1),
-            "N-17f-2" => Ok(FilingTypeOption::N17F2),
-            "N-18f-1" => Ok(FilingTypeOption::N18F1),
+            "N-17F-1" => Ok(FilingTypeOption::N17F1),
+            "N-17F-2" => Ok(FilingTypeOption::N17F2),
+            "N-18F-1" => Ok(FilingTypeOption::N18F1),
             "N-1A" => Ok(FilingTypeOption::N1A),
             "N-2" => Ok(FilingTypeOption::N2),
-            "N-23c-3" => Ok(FilingTypeOption::N23C3),
+            "N-23C-3" => Ok(FilingTypeOption::N23C3),
             "N-27D-1" => Ok(FilingTypeOption::N27D1),
             "N-3" => Ok(FilingTypeOption::N3),
             "N-4" => Ok(FilingTypeOption::N4),
@@ -304,7 +304,7 @@ impl Filing {
             "X-17A-19" => Ok(FilingTypeOption::X17A19),
             "X-17A-5" => Ok(FilingTypeOption::X17A5),
             "X-17F-1A" => Ok(FilingTypeOption::X17F1A),
-            _ => Err(Error::FilingTypeNotFound),
+            _ => Err(EDGARError::FilingTypeNotFound),
         }
     }
     /// Converts [FilingTypeOption] to a String representation.
@@ -458,8 +458,8 @@ impl Filing {
     }
     /// Validates by converting from string to [FilingTypeOption] and back.
     /// Panics if the string is invalid.
-    pub fn validate_filing_type_string(filing_type: &str) -> Result<String, Error> {
-        let filing = Filing::from_str(filing_type)?;
+    pub fn validate_filing_type_string(filing_type: &str) -> Result<String, EDGARError> {
+        let filing = Filing::filing_from_str(filing_type)?;
         Ok(Filing::to_string(filing))
     }
 }
@@ -469,16 +469,15 @@ mod tests {
     use super::*;
     #[test]
     fn test_valid_filing_type_from_str() {
-        match Filing::from_str("X-17F-1A") {
-            Ok(f) => assert_eq!(f, FilingTypeOption::X17F1A),
-            Err(_) => assert!(false),
-        }
+        assert_eq!(
+            Filing::filing_from_str("X-17F-1A").unwrap(),
+            FilingTypeOption::X17F1A
+        )
     }
     #[test]
     #[should_panic]
     fn test_invalid_filing_type_from_str() {
-        let _unused = Filing::from_str("not a real filing type");
-        assert!(false)
+        Filing::filing_from_str("not a real filing type").unwrap();
     }
     #[test]
     fn test_filing_type_to_string() {
@@ -491,17 +490,14 @@ mod tests {
     fn test_valid_validate_filing_type() {
         let filing = "X-17F-1A";
         let t = Filing::validate_filing_type_string(filing);
-        match t {
-            Ok(f) => assert_eq!(f, filing.to_string()),
-            Err(_) => assert!(false),
-        }
+        assert_eq!(t.unwrap(), filing.to_string())
     }
     #[test]
     #[should_panic]
     fn test_invalid_validate_filing_type() {
         let filing = "not real filing type";
         assert_eq!(
-            Filing::validate_filing_type_string(&filing).unwrap(),
+            Filing::validate_filing_type_string(filing).unwrap(),
             filing.to_string()
         )
     }

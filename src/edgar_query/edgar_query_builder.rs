@@ -16,8 +16,8 @@ pub enum FilingInput {
 }
 #[allow(missing_docs)]
 #[derive(Debug, PartialEq)]
-pub enum OwnerInput {
-    TypeStr(String),
+pub enum OwnerInput<'a> {
+    TypeStr(&'a str),
     TypeOwner(OwnerOptions),
 }
 #[allow(missing_docs)]
@@ -38,7 +38,7 @@ pub enum CountInput {
 ///     .unwrap();
 /// ```
 #[derive(Debug, PartialEq)]
-pub struct EdgarQueryBuilder {
+pub struct EdgarQueryBuilder<'a> {
     #[allow(missing_docs)]
     pub base: String,
     #[allow(missing_docs)]
@@ -136,7 +136,7 @@ impl EdgarQueryBuilder {
     pub fn set_owner(mut self, owner: OwnerInput) -> Result<Self, EDGARError> {
         match owner {
             OwnerInput::TypeStr(ow) => {
-                self.owner = Owner::validate_owner_string(ow.as_str())?;
+                self.owner = Owner::validate_owner_string(ow)?;
                 Ok(self)
             }
             OwnerInput::TypeOwner(ow) => {

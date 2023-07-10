@@ -467,26 +467,26 @@ mod tests {
     #[test]
     fn test_valid_filing_type_from_str() {
         assert_eq!(
-            Filing::filing_from_str("X-17F-1A").unwrap(),
+            filing_from_str("X-17F-1A").unwrap(),
             FilingTypeOption::X17F1A
         )
     }
     #[test]
     #[should_panic]
     fn test_invalid_filing_type_from_str() {
-        Filing::filing_from_str("not a real filing type").unwrap();
+        filing_from_str("not a real filing type").unwrap();
     }
     #[test]
     fn test_filing_type_to_string() {
         assert_eq!(
-            Filing::to_string(FilingTypeOption::X17F1A),
+            to_str(FilingTypeOption::X17F1A),
             "X-17F-1A".to_string()
         )
     }
     #[test]
     fn test_valid_validate_filing_type() {
         let filing = "X-17F-1A";
-        let t = Filing::validate_filing_type_string(filing);
+        let t = validate_filing_type_string(filing);
         assert_eq!(t.unwrap(), filing.to_string())
     }
     #[test]
@@ -494,7 +494,7 @@ mod tests {
     fn test_invalid_validate_filing_type() {
         let filing = "not real filing type";
         assert_eq!(
-            Filing::validate_filing_type_string(filing).unwrap(),
+            validate_filing_type_string(filing).unwrap(),
             filing.to_string()
         )
     }

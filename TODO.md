@@ -125,6 +125,7 @@ let a = document.querySelector(
 7/10/2023
 
 - [x] implement [thisError](https://crates.io/crates/thiserror)
+- [ ] rather than returning a new Self, simply edit the data of the original Self struct
 - [ ] apply knowledge about lifetimes, Box, Rc, Arc
 - [ ] [use map_err() for specific error types](https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/error-handling.html#defining-your-own-error-type)
 - [ ] [impl Display, error, cause for your Errors](https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/error-handling.html#the-error-trait)

@@ -48,13 +48,13 @@ pub struct EdgarQueryBuilder<'a> {
     #[allow(missing_docs)]
     pub dateb: String,
     #[allow(missing_docs)]
-    pub owner: String,
+    pub owner: &'a str,
     #[allow(missing_docs)]
     pub count: String,
     #[allow(missing_docs)]
     pub search_text: String,
 }
-impl EdgarQueryBuilder {
+impl EdgarQueryBuilder<'_> {
     /// Instantiating a query builder with the following defaults:
     /// ```
     /// use sec_edgar::edgar_query::edgar_query_builder::{add_leading_zeros_to_cik, EdgarQueryBuilder};
@@ -83,7 +83,7 @@ impl EdgarQueryBuilder {
             cik,
             filing_type: default.clone(),
             dateb: default.clone(),
-            owner: "include".to_string(),
+            owner: "include",
             count: "10".to_string(),
             search_text: default,
         }

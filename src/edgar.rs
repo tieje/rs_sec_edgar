@@ -167,7 +167,7 @@ pub fn edgar_client() -> Result<Client, EDGARError> {
 mod tests {
     use super::*;
     use crate::edgar_query::edgar_query_builder::FilingInput;
-    use crate::edgar_query::filing_types::FilingTypeOption::_10Q;
+    use crate::edgar_query::filing::FilingTypeOption::_10Q;
     use crate::edgar_query::{cik_query::CIKQuery, edgar_query_builder::EdgarQueryBuilder};
 
     async fn edgar_sample_query_ending(cik_query: String) {

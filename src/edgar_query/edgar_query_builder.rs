@@ -1,24 +1,32 @@
 //! This module provides a way to build the URL query that will be used to query EDGAR.
 
+use std::thread::Builder;
+
 use super::{
-    filing_types::{Filing, FilingTypeOption},
-    owner::{Owner, OwnerOptions},
+    filing::{Filing, FilingTypeOption, validate_filing_type_string},
+    owner::{self, validate_owner_string, OwnerOptions}, filing_content_value::FilingType,
 };
 use crate::error::EDGARError;
 use reqwest::Url;
 use url::ParseError;
 
+// #[allow(missing_docs)]
+// #[derive(Debug, PartialEq)]
+// pub enum FilingInput {
+//     TypeStr(String),
+//     TypeFiling(FilingTypeOption),
+// }
+// #[allow(missing_docs)]
+// #[derive(Debug, PartialEq)]
+// pub enum OwnerInput<'a> {
+//     TypeStr(&'a str),
+//     TypeOwner(OwnerOptions),
+// }
 #[allow(missing_docs)]
 #[derive(Debug, PartialEq)]
-pub enum FilingInput {
-    TypeStr(String),
-    TypeFiling(FilingTypeOption),
-}
-#[allow(missing_docs)]
-#[derive(Debug, PartialEq)]
-pub enum OwnerInput<'a> {
+pub enum BuilderInput<'a, T> {
     TypeStr(&'a str),
-    TypeOwner(OwnerOptions),
+    TypeTInput(T),
 }
 #[allow(missing_docs)]
 #[derive(Debug, PartialEq)]
@@ -44,7 +52,7 @@ pub struct EdgarQueryBuilder<'a> {
     #[allow(missing_docs)]
     pub cik: String,
     #[allow(missing_docs)]
-    pub filing_type: String,
+    pub filing_type: &'a str,
     #[allow(missing_docs)]
     pub dateb: String,
     #[allow(missing_docs)]
@@ -102,15 +110,13 @@ impl EdgarQueryBuilder<'_> {
         query
     }
     /// If no filing type is set, the default is an empty String, in which case, all types of filings will be queried.
-    pub fn set_filing_type(mut self, filing_type: FilingInput) -> Result<Self, EDGARError> {
+    pub fn set_filing_type<'a>(mut self, filing_type: BuilderInput<'a, FilingType>) {
         match filing_type {
-            FilingInput::TypeStr(f) => {
-                self.filing_type = Filing::validate_filing_type_string(f.as_str())?;
-                Ok(self)
-            }
-            FilingInput::TypeFiling(f) => {
+            BuilderInput::TypeStr(f) => {
+                self.filing_type = validate_filing_type_string(f.as_str());
+            },
+            BuilderInput::TypeFiling(f) => {
                 self.filing_type = Filing::to_string(f);
-                Ok(self)
             }
         }
     }
@@ -133,15 +139,15 @@ impl EdgarQueryBuilder<'_> {
     /// - "exclude" means exclude documents related to the company's director or officer ownership.
     /// - "only" means only show documents related to the company's director or officer ownership.
     /// If owner is not set, the default is "include".
-    pub fn set_owner(mut self, owner: OwnerInput) -> Result<Self, EDGARError> {
+    pub fn set_owner<'a>(&mut self, owner: BuilderInput<'a, OwnerOptions>) {
         match owner {
-            OwnerInput::TypeStr(ow) => {
-                self.owner = Owner::validate_owner_string(ow)?;
-                Ok(self)
+            BuilderInput::TypeStr(ow) => {
+                self.owner = validate_owner_string(ow)
+                    .map_err(|e| e)
+                    .expect("Invalid owner");
             }
-            OwnerInput::TypeOwner(ow) => {
-                self.owner = Owner::to_string(ow);
-                Ok(self)
+            BuilderInput::TypeTInput(ow) => {
+                self.owner = owner::to_str(ow);
             }
         }
     }
@@ -188,7 +194,7 @@ pub fn add_leading_zeros_to_cik(cik: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::edgar_query::filing_types::FilingTypeOption::_10K;
+    use crate::edgar_query::filing::FilingTypeOption::_10K;
     use CountInput::TypeU8;
     use FilingInput::TypeFiling;
 

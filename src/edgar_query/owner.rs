@@ -35,7 +35,7 @@ pub fn to_str<'a>(owner_option: OwnerOptions) -> &'a str {
 }
 /// Validates by converting string to an [OwnerOptions] and back.
 /// Panics if the string is not a real option.
-pub fn validate_owner_string<'a>(owner: &'a str) -> Result<&'a str, EDGARError> {
+pub fn validate_owner_string(owner: &str) -> Result<&str, EDGARError> {
     let owner = owner_from_str(owner)?;
     Ok(to_str(owner))
 }

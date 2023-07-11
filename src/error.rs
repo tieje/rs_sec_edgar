@@ -38,6 +38,8 @@ pub enum EDGARError {
     CIKNotFound,
     #[error("Filing Content Value Not Found")]
     FilingTypeNotFound,
+    #[error("Filing Content Not Found")]
+    FilingContentNotFound,
     #[error("Filing Content Value Not Found")]
     FilingContentValueNotFound,
     #[error("User Agent Env Var Missing")]

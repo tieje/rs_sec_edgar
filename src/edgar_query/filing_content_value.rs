@@ -84,8 +84,9 @@ pub struct XbrlHref<'a> {
 /// Provides structure for the feed's entry's content, which is in the form of Some("string") in Rust.
 /// Href values are not provided because the serde_xml_rs crate cannot deserialize values that contain the `=` symbol.
 #[derive(Clone, Debug, Deserialize, PartialEq)]
-pub struct FilingContentValue<'a, De: 'a> {
+pub struct FilingContentValue<'a> {
     /// See [AccessionNumber]
+    #[serde(borrow)]
     #[serde(rename = "accession-number")]
     pub accession_number: AccessionNumber<'a>,
     /// See [Act]
@@ -118,7 +119,7 @@ pub struct FilingContentValue<'a, De: 'a> {
     // pub xbrl_href: XbrlHref,
 }
 
-impl<'a, De> FilingContentValue<'a, De> {
+impl<'a> FilingContentValue<'a> {
     /// Instantiates the [FilingContentValue] to deserialize the content of an entry from a feed with atom format.
     pub fn new(content: Content) -> Result<Self, EDGARError> {
         let value = content

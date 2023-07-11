@@ -29,7 +29,7 @@ pub struct EdgarQueryBuilder<'a> {
     #[allow(missing_docs)]
     pub base: &'a str,
     #[allow(missing_docs)]
-    pub cik: &'a str,
+    pub cik: String,
     #[allow(missing_docs)]
     pub filing_type: &'a str,
     #[allow(missing_docs)]
@@ -90,9 +90,7 @@ impl<'a> EdgarQueryBuilder<'a> {
     /// If no filing type is set, the default is an empty &str, in which case, all types of filings will be queried.
     pub fn set_filing_type(&mut self, filing_type: BuilderInput<'a, FilingTypeOption>) {
         self.filing_type = match filing_type {
-            BuilderInput::TypeStr(f) => validate_filing_type_string(f)
-                .map_err(|e| e)
-                .unwrap_or_default(),
+            BuilderInput::TypeStr(f) => validate_filing_type_string(f).unwrap_or_default(),
             BuilderInput::TypeTInput(f) => filing::to_str(f),
         };
     }
@@ -116,9 +114,7 @@ impl<'a> EdgarQueryBuilder<'a> {
     /// If owner is not set, the default is "include".
     pub fn set_owner(&mut self, owner: BuilderInput<'a, OwnerOptions>) {
         self.owner = match owner {
-            BuilderInput::TypeStr(ow) => validate_owner_string(ow)
-                .map_err(|e| e)
-                .unwrap_or("include"),
+            BuilderInput::TypeStr(ow) => validate_owner_string(ow).unwrap_or("include"),
             BuilderInput::TypeTInput(ow) => owner::to_str(ow),
         }
     }
@@ -144,12 +140,12 @@ impl<'a> EdgarQueryBuilder<'a> {
 
 /// EDGAR queries require a CIK with ten digits, however, most CIKs have less than ten digits.
 /// Leading zeros must be added to the CIK to reach this ten digit requirement.
-pub fn add_leading_zeros_to_cik<'a>(cik: &'a str) -> &'a str {
+pub fn add_leading_zeros_to_cik(cik: &str) -> String {
     let mut result = cik.to_owned();
     while result.len() < 10 {
         result.insert(0, '0');
     }
-    &result
+    result
 }
 
 #[cfg(test)]

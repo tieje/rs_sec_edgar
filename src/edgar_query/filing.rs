@@ -456,7 +456,7 @@ pub fn to_str<'a>(filing_type: FilingTypeOption) -> &'a str {
 }
 /// Validates by converting from string to [FilingTypeOption] and back.
 /// Panics if the string is invalid.
-pub fn validate_filing_type_string<'a>(filing_type: &'a str) -> Result<&'a str, EDGARError> {
+pub fn validate_filing_type_string(filing_type: &str) -> Result<&str, EDGARError> {
     let filing = filing_from_str(filing_type)?;
     Ok(to_str(filing))
 }

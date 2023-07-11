@@ -133,6 +133,7 @@ let a = document.querySelector(
 - https://stackoverflow.com/questions/74517218/rust-deserialization-lifetimes-problem-de-must-outlive-a
 - https://serde.rs/field-attrs.html#borrow
 
+- [ ] figure out how to edit data on self with shared mutable state
 
 - [ ] apply knowledge about lifetimes, Box, Rc, Arc
 - [ ] [use map_err() for specific error types](https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/error-handling.html#defining-your-own-error-type)

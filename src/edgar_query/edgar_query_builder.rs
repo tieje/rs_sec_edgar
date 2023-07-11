@@ -167,10 +167,11 @@ mod tests {
         assert_eq!(sample().cik.as_str(), answer)
     }
     #[test]
-    fn edgar_query_builder_set_filing_type() {
+    fn edgar_query_builder_set_filing_type<'a>() {
         let answer = "10-K";
-        let query = sample().set_filing_type(_10K);
-        assert_eq!(query.unwrap().filing_type.as_str(), answer)
+        let mut query = sample()
+            .set_filing_type(BuilderInput::TypeTInput(_10K));
+        assert_eq!(query, answer)
     }
     #[test]
     fn edgar_query_builder_set_dateb() {

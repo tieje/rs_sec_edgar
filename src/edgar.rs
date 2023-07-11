@@ -176,7 +176,7 @@ mod tests {
     async fn edgar_sample_query_ending(cik_query: String) {
         let answer = "10-Q";
         let query = EdgarQueryBuilder::new(&cik_query)
-            .set_filing_type(BuilderInput::<FilingTypeOption>::TypeTInput(_10Q))
+            .set_filing_type(BuilderInput::TypeTInput(_10Q))
             .build();
         let entries = get_feed_entries(edgar_client().unwrap(), query).await;
         let filing_type = get_feed_entry_content(entries.unwrap().first().unwrap())

@@ -130,8 +130,10 @@ pub async fn get_feed_entries(client: Client, query_url: Url) -> Result<Vec<Entr
 ///     let first_entry_content = get_feed_entry_content(first_entry);
 /// }
 /// ```
-pub async fn get_feed_entry_content(entry: &Entry) -> Result<FilingContentValue, EDGARError> {
-    let entry_content = entry.content.clone().unwrap();
+pub fn get_feed_entry_content(entry: &Entry) -> Result<FilingContentValue, EDGARError> {
+    let entry_content = entry
+        .content
+        .map_or(default, f)
     FilingContentValue::new(entry_content)
 }
 /// Returns a client that can send requests to EDGAR.
@@ -166,20 +168,19 @@ pub fn edgar_client() -> Result<Client, EDGARError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::edgar_query::edgar_query_builder::FilingInput;
-    use crate::edgar_query::filing::FilingTypeOption::_10Q;
-    use crate::edgar_query::{cik_query::CIKQuery, edgar_query_builder::EdgarQueryBuilder};
+    use crate::edgar_query::{
+        cik_query::CIKQuery, edgar_query_builder::EdgarQueryBuilder, filing::FilingTypeOption::_10Q,
+    };
 
     async fn edgar_sample_query_ending(cik_query: String) {
         let answer = "10-Q";
         let query = EdgarQueryBuilder::new(&cik_query)
-            .set_filing_type(FilingInput::TypeFiling(_10Q))
+            .set_filing_type(_10Q)
             .unwrap()
             .build()
             .unwrap();
         let entries = get_feed_entries(edgar_client().unwrap(), query).await;
         let filing_type = get_feed_entry_content(entries.unwrap().first().unwrap())
-            .await
             .unwrap()
             .filing_type
             .value;

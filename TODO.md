@@ -131,6 +131,11 @@ let a = document.querySelector(
 - [x] apply knowledge about lifetimes, Box, Rc, Arc
 - [x] push version 1.0.2
 
+7/12/2023
+
+- [x] mutate self instead of creating new self
+- [x] deploy 1.0.3
+
 ## Commands
 
 cargo t -- --nocapture

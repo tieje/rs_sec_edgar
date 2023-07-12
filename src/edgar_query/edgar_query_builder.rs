@@ -86,15 +86,12 @@ impl EdgarQueryBuilder {
         query
     }
     /// If no filing type is set, the default is an empty String, in which case, all types of filings will be queried.
-    pub fn set_filing_type(self, filing_type: BuilderInput<FilingTypeOption>) -> Self {
-        let filing_type = match filing_type {
+    pub fn set_filing_type(mut self, filing_type: BuilderInput<FilingTypeOption>) -> Self {
+        self.filing_type = match filing_type {
             BuilderInput::TypeStr(f) => validate_filing_type_string(f).unwrap_or_default(),
             BuilderInput::TypeTInput(f) => filing::to_string(f),
         };
-        Self {
-            filing_type,
-            ..self
-        }
+        self
     }
     /// The date must be a string in the form of YYYYMMDD.
     ///
@@ -104,11 +101,9 @@ impl EdgarQueryBuilder {
     /// query.set_dateb("20230105")
     /// ```
     /// If no date is set, the default will be an empty String, which is interpreted as the latest date by EDGAR by default.
-    pub fn set_dateb(self, yyyymmdd: &str) -> Self {
-        Self {
-            dateb: yyyymmdd.to_string(),
-            ..self
-        }
+    pub fn set_dateb(mut self, yyyymmdd: &str) -> Self {
+        self.dateb = yyyymmdd.to_string();
+        self
     }
     /// There are three options: "include", "exclude", and "only".
     ///
@@ -117,12 +112,12 @@ impl EdgarQueryBuilder {
     /// - "exclude" means exclude documents related to the company's director or officer ownership.
     /// - "only" means only show documents related to the company's director or officer ownership.
     /// If owner is not set, the default is "include".
-    pub fn set_owner(self, owner: BuilderInput<OwnerOptions>) -> Self {
-        let owner = match owner {
+    pub fn set_owner(mut self, owner: BuilderInput<OwnerOptions>) -> Self {
+        self.owner = match owner {
             BuilderInput::TypeStr(ow) => validate_owner_string(ow).unwrap_or("include".to_string()),
             BuilderInput::TypeTInput(ow) => owner::to_string(ow),
         };
-        Self { owner, ..self }
+        self
     }
     /// The SEC's EDGAR apparently provides filings from 10 to 100 with the following options:
     ///
@@ -135,18 +130,14 @@ impl EdgarQueryBuilder {
     /// 19 gets rounded down to 10.
     ///
     /// If count is not set, default is 10.
-    pub fn set_count(self, count: &str) -> Self {
-        Self {
-            count: count.to_string(),
-            ..self
-        }
+    pub fn set_count(mut self, count: &str) -> Self {
+        self.count = count.to_string();
+        self
     }
     /// If search text is not set, the default is an empty string.
-    pub fn set_search_text(self, search_text: &str) -> Self {
-        Self {
-            search_text: search_text.to_string(),
-            ..self
-        }
+    pub fn set_search_text(mut self, search_text: &str) -> Self {
+        self.search_text = search_text.to_string();
+        self
     }
 }
 

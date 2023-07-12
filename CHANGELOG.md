@@ -1,8 +1,14 @@
 # CHANGE LOG
 
+## 1.0.3
+
+7/13/2023
+
+- [x] mutating self instead of creating entirely new self
+
 ## 1.0.2
 
-7/12/2023
+7/11/2023
 
 - [x] simplified returning errors with [thiserror crate](https://crates.io/crates/thiserror)
 - [x] verified that builder works as intended

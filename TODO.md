@@ -120,7 +120,6 @@ let a = document.querySelector(
 
 - [x] change mod.rs system to modern file system
 - [x] fix clippy errors
-- [ ] implement [thisError](https://crates.io/crates/thiserror)
 - [x] implement [thisError](https://crates.io/crates/thiserror)
 
 7/10/2023
@@ -129,16 +128,8 @@ let a = document.querySelector(
 
 7/11/2023
 
-- look into this:
-- https://stackoverflow.com/questions/74517218/rust-deserialization-lifetimes-problem-de-must-outlive-a
-- https://serde.rs/field-attrs.html#borrow
-
-- [ ] figure out how to edit data on self with shared mutable state
-
-- [ ] apply knowledge about lifetimes, Box, Rc, Arc
-- [ ] [use map_err() for specific error types](https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/error-handling.html#defining-your-own-error-type)
-- [ ] [impl Display, error, cause for your Errors](https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/error-handling.html#the-error-trait)
-- [ ] yank 1.0.0 and create 0.1.0 instead
+- [x] apply knowledge about lifetimes, Box, Rc, Arc
+- [x] push version 1.0.2
 
 ## Commands
 

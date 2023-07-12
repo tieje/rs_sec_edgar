@@ -26,16 +26,16 @@ pub fn owner_from_str(owner_option: &str) -> Result<OwnerOptions, EDGARError> {
     }
 }
 /// Converts an [OwnerOptions] to a lowercase string representation of that option.
-pub fn to_str<'a>(owner_option: OwnerOptions) -> &'a str {
+pub fn to_string(owner_option: OwnerOptions) -> String {
     match owner_option {
-        OwnerOptions::INCLUDE => "include",
-        OwnerOptions::EXCLUDE => "exclude",
-        OwnerOptions::ONLY => "only",
+        OwnerOptions::INCLUDE => "include".to_string(),
+        OwnerOptions::EXCLUDE => "exclude".to_string(),
+        OwnerOptions::ONLY => "only".to_string(),
     }
 }
 /// Validates by converting string to an [OwnerOptions] and back.
 /// Panics if the string is not a real option.
-pub fn validate_owner_string(owner: &str) -> Result<&str, EDGARError> {
+pub fn validate_owner_string(owner: &str) -> Result<String, EDGARError> {
     let owner = owner_from_str(owner)?;
-    Ok(to_str(owner))
+    Ok(to_string(owner))
 }

@@ -3,10 +3,14 @@
 //!
 //! ## Example
 //! ```
-//! use sec_edgar::edgar::{edgar_client, get_feed_entries, get_feed_entry_content};
-//! use sec_edgar::edgar_query::cik_query::CIKQuery;
-//! use sec_edgar::edgar_query::filing_types::FilingTypeOption::_10Q;
-//! use sec_edgar::edgar_query::edgar_query_builder::{FilingInput, EdgarQueryBuilder};
+//! use sec_edgar::{
+//!     edgar::{edgar_client, get_feed_entries, get_feed_entry_content},
+//!     edgar_query::{
+//!         cik_query::CIKQuery,
+//!         filing::FilingTypeOption::_10Q,
+//!         edgar_query_builder::{BuilderInput, EdgarQueryBuilder}
+//!    },
+//! };
 //!
 //! async fn some_func() {
 //!     let ticker = "c";
@@ -17,22 +21,20 @@
 //!         .unwrap()
 //!         .get_cik(ticker)
 //!         .await
-//!         .expect("ticker not found");
+//!         .unwrap();
 //!     let query = EdgarQueryBuilder::new(&cik_query)
-//!         .set_filing_type(FilingInput::TypeFiling(_10Q))
-//!         .unwrap()
+//!         .set_filing_type(BuilderInput::TypeTInput(_10Q))
 //!         .build()
 //!         .unwrap();
 //!     let entries = get_feed_entries(edgar_client().unwrap(), query).await.unwrap();
 //!     let filing_type = get_feed_entry_content(entries.first().unwrap())
-//!         .await
 //!         .unwrap()
 //!         .filing_type
 //!         .value;
 //! }
 //! ```
 
-// #![deny(missing_docs)]
+#![deny(missing_docs)]
 
 pub mod edgar;
 pub mod edgar_query;

@@ -80,8 +80,8 @@ async fn get_cik_from_web(location: &Url, ticker: &str) -> Result<String, EDGARE
     let body = response.text().await?;
     find_cik_from_html(body.as_str(), ticker)
 }
-fn get_cik_from_file(location: &PathBuf, ticker: &str) -> Result<String, EDGARError> {
-    let file = File::open(location.as_path())?;
+fn get_cik_from_file(location: &Path, ticker: &str) -> Result<String, EDGARError> {
+    let file = File::open(location)?;
     let reader = BufReader::new(file);
     for line in reader.lines() {
         let res = find_cik_from_line(&line?, ticker);

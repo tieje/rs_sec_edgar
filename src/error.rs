@@ -1,3 +1,5 @@
+//! This module houses the error type for EDGAR.
+
 use std::io;
 use thiserror::Error;
 

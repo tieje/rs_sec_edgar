@@ -2,10 +2,14 @@
 //!
 //! Usage:
 //! ```
-//! use sec_edgar::edgar::{edgar_client, get_feed_entries, get_feed_entry_content};
-//! use sec_edgar::edgar_query::cik_query::CIKQuery;
-//! use sec_edgar::edgar_query::filing_types::FilingTypeOption::_10Q;
-//! use sec_edgar::edgar_query::edgar_query_builder::{FilingInput, EdgarQueryBuilder};
+//! use sec_edgar::{
+//!     edgar::{edgar_client, get_feed_entries, get_feed_entry_content},
+//!     edgar_query::{
+//!         cik_query::CIKQuery,
+//!         filing::FilingTypeOption::_10Q,
+//!         edgar_query_builder::{BuilderInput, EdgarQueryBuilder}
+//!    },
+//! };
 //!
 //! async fn some_func() {
 //!     let ticker = "c";
@@ -18,13 +22,11 @@
 //!         .await
 //!         .unwrap();
 //!     let query = EdgarQueryBuilder::new(&cik_query)
-//!         .set_filing_type(FilingInput::TypeFiling(_10Q))
-//!         .unwrap()
+//!         .set_filing_type(BuilderInput::TypeTInput(_10Q))
 //!         .build()
 //!         .unwrap();
 //!     let entries = get_feed_entries(edgar_client().unwrap(), query).await.unwrap();
 //!     let filing_type = get_feed_entry_content(entries.first().unwrap())
-//!         .await
 //!         .unwrap()
 //!         .filing_type
 //!         .value;
@@ -130,7 +132,7 @@ pub async fn get_feed_entries(client: Client, query_url: Url) -> Result<Vec<Entr
 ///     let first_entry_content = get_feed_entry_content(first_entry);
 /// }
 /// ```
-pub fn get_feed_entry_content<'a>(entry: &Entry) -> Result<FilingContentValue<'a>, EDGARError> {
+pub fn get_feed_entry_content(entry: &Entry) -> Result<FilingContentValue, EDGARError> {
     let entry_content = match &entry.content {
         None => return Err(EDGARError::FilingContentNotFound),
         Some(a) => a,
@@ -170,20 +172,23 @@ pub fn edgar_client() -> Result<Client, EDGARError> {
 mod tests {
     use super::*;
     use crate::edgar_query::{
-        cik_query::CIKQuery, edgar_query_builder::{EdgarQueryBuilder, BuilderInput}, filing::FilingTypeOption::{_10Q, self},
+        cik_query::CIKQuery,
+        edgar_query_builder::{BuilderInput, EdgarQueryBuilder},
+        filing::FilingTypeOption::_10Q,
     };
 
     async fn edgar_sample_query_ending(cik_query: String) {
         let answer = "10-Q";
         let query = EdgarQueryBuilder::new(&cik_query)
             .set_filing_type(BuilderInput::TypeTInput(_10Q))
-            .build();
+            .build()
+            .unwrap();
         let entries = get_feed_entries(edgar_client().unwrap(), query).await;
         let filing_type = get_feed_entry_content(entries.unwrap().first().unwrap())
             .unwrap()
             .filing_type
             .value;
-        assert_eq!(filing_type.as_str(), answer);
+        assert_eq!(filing_type, answer);
     }
     #[tokio::test]
     #[ignore = "Tests with local file. The file could be put anywhere."]

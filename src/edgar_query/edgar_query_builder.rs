@@ -15,33 +15,31 @@ pub enum BuilderInput<'a, T> {
 }
 /// Build a URL HTTPS query that will be used to query EDGAR
 /// ```
-/// use sec_edgar::edgar_query::edgar_query_builder::EdgarQueryBuilder;
-/// use sec_edgar::edgar_query::edgar_query_builder::FilingInput;
+/// use sec_edgar::edgar_query::edgar_query_builder::{EdgarQueryBuilder, BuilderInput};
 /// use reqwest::Url;
 /// let query_url: Url = EdgarQueryBuilder::new("78003")
-///     .set_filing_type(FilingInput::TypeStr("10-K".to_string()))
-///     .unwrap()
+///     .set_filing_type(BuilderInput::TypeStr("10-K"))
 ///     .build()
 ///     .unwrap();
 /// ```
 #[derive(Debug, PartialEq)]
-pub struct EdgarQueryBuilder<'a> {
+pub struct EdgarQueryBuilder {
     #[allow(missing_docs)]
-    pub base: &'a str,
+    pub base: String,
     #[allow(missing_docs)]
     pub cik: String,
     #[allow(missing_docs)]
-    pub filing_type: &'a str,
+    pub filing_type: String,
     #[allow(missing_docs)]
-    pub dateb: &'a str,
+    pub dateb: String,
     #[allow(missing_docs)]
-    pub owner: &'a str,
+    pub owner: String,
     #[allow(missing_docs)]
-    pub count: &'a str,
+    pub count: String,
     #[allow(missing_docs)]
-    pub search_text: &'a str,
+    pub search_text: String,
 }
-impl<'a> EdgarQueryBuilder<'a> {
+impl EdgarQueryBuilder {
     /// Instantiating a query builder with the following defaults:
     /// ```
     /// use sec_edgar::edgar_query::edgar_query_builder::{add_leading_zeros_to_cik, EdgarQueryBuilder};
@@ -61,16 +59,16 @@ impl<'a> EdgarQueryBuilder<'a> {
     /// };
     /// ```
     /// It is assumed that the CIK is valid.
-    pub fn new(short_cik: &'a str) -> Self {
-        let base = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&";
+    pub fn new(short_cik: &str) -> Self {
+        let base = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&".to_string();
         let cik = add_leading_zeros_to_cik(short_cik);
         Self {
             base,
             cik,
             filing_type: Default::default(),
             dateb: Default::default(),
-            owner: "include",
-            count: "10",
+            owner: "include".to_string(),
+            count: "10".to_string(),
             search_text: Default::default(),
         }
     }
@@ -87,12 +85,16 @@ impl<'a> EdgarQueryBuilder<'a> {
         ).as_str());
         query
     }
-    /// If no filing type is set, the default is an empty &str, in which case, all types of filings will be queried.
-    pub fn set_filing_type(&mut self, filing_type: BuilderInput<'a, FilingTypeOption>) {
-        self.filing_type = match filing_type {
+    /// If no filing type is set, the default is an empty String, in which case, all types of filings will be queried.
+    pub fn set_filing_type(self, filing_type: BuilderInput<FilingTypeOption>) -> Self {
+        let filing_type = match filing_type {
             BuilderInput::TypeStr(f) => validate_filing_type_string(f).unwrap_or_default(),
-            BuilderInput::TypeTInput(f) => filing::to_str(f),
+            BuilderInput::TypeTInput(f) => filing::to_string(f),
         };
+        Self {
+            filing_type,
+            ..self
+        }
     }
     /// The date must be a string in the form of YYYYMMDD.
     ///
@@ -101,9 +103,12 @@ impl<'a> EdgarQueryBuilder<'a> {
     /// let example_query = EdgarQueryBuilder::new("78003");
     /// query.set_dateb("20230105")
     /// ```
-    /// If no date is set, the default will be an empty &str, which is interpreted as the latest date by EDGAR by default.
-    pub fn set_dateb(&mut self, yyyymmdd: &'a str) {
-        self.dateb = yyyymmdd;
+    /// If no date is set, the default will be an empty String, which is interpreted as the latest date by EDGAR by default.
+    pub fn set_dateb(self, yyyymmdd: &str) -> Self {
+        Self {
+            dateb: yyyymmdd.to_string(),
+            ..self
+        }
     }
     /// There are three options: "include", "exclude", and "only".
     ///
@@ -112,11 +117,12 @@ impl<'a> EdgarQueryBuilder<'a> {
     /// - "exclude" means exclude documents related to the company's director or officer ownership.
     /// - "only" means only show documents related to the company's director or officer ownership.
     /// If owner is not set, the default is "include".
-    pub fn set_owner(&mut self, owner: BuilderInput<'a, OwnerOptions>) {
-        self.owner = match owner {
-            BuilderInput::TypeStr(ow) => validate_owner_string(ow).unwrap_or("include"),
-            BuilderInput::TypeTInput(ow) => owner::to_str(ow),
-        }
+    pub fn set_owner(self, owner: BuilderInput<OwnerOptions>) -> Self {
+        let owner = match owner {
+            BuilderInput::TypeStr(ow) => validate_owner_string(ow).unwrap_or("include".to_string()),
+            BuilderInput::TypeTInput(ow) => owner::to_string(ow),
+        };
+        Self { owner, ..self }
     }
     /// The SEC's EDGAR apparently provides filings from 10 to 100 with the following options:
     ///
@@ -129,12 +135,18 @@ impl<'a> EdgarQueryBuilder<'a> {
     /// 19 gets rounded down to 10.
     ///
     /// If count is not set, default is 10.
-    pub fn set_count(&mut self, count: &'a str) {
-        self.count = count
+    pub fn set_count(self, count: &str) -> Self {
+        Self {
+            count: count.to_string(),
+            ..self
+        }
     }
     /// If search text is not set, the default is an empty string.
-    pub fn set_search_text(&mut self, search_text: &'a str) {
-        self.search_text = search_text;
+    pub fn set_search_text(self, search_text: &str) -> Self {
+        Self {
+            search_text: search_text.to_string(),
+            ..self
+        }
     }
 }
 
@@ -153,7 +165,7 @@ mod tests {
     use super::*;
     use crate::edgar_query::filing::FilingTypeOption::_10K;
 
-    fn sample<'a>() -> EdgarQueryBuilder<'a> {
+    fn sample() -> EdgarQueryBuilder {
         EdgarQueryBuilder::new("78003")
     }
     #[test]
@@ -167,11 +179,10 @@ mod tests {
         assert_eq!(sample().cik.as_str(), answer)
     }
     #[test]
-    fn edgar_query_builder_set_filing_type<'a>() {
+    fn edgar_query_builder_set_filing_type() {
         let answer = "10-K";
-        let mut query = sample()
-            .set_filing_type(BuilderInput::TypeTInput(_10K));
-        assert_eq!(query, answer)
+        let query = sample().set_filing_type(BuilderInput::TypeTInput(_10K));
+        assert_eq!(query.filing_type, answer)
     }
     #[test]
     fn edgar_query_builder_set_dateb() {
@@ -182,13 +193,13 @@ mod tests {
     #[test]
     fn edgar_query_builder_set_owner() {
         let answer = "only";
-        let query = sample().set_owner(BuilderInput::TypeStr(answer)).unwrap();
+        let query = sample().set_owner(BuilderInput::TypeStr(answer));
         assert_eq!(query.owner.as_str(), answer)
     }
     #[test]
     fn edgar_query_builder_set_count() {
         let answer = "10";
-        let query = sample().set_count(BuilderInput::TypeStr(answer));
+        let query = sample().set_count(answer);
         assert_eq!(query.count.as_str(), "10")
     }
     #[test]
@@ -196,8 +207,7 @@ mod tests {
         let answer = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000078003&type=10-k&dateb=&owner=include&count=20&search_text=&output=atom".to_lowercase();
         let query = sample()
             .set_count("20")
-            .set_filing_type(_10K)
-            .unwrap()
+            .set_filing_type(BuilderInput::TypeTInput(_10K))
             .build()
             .unwrap()
             .as_str()

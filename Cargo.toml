@@ -1,11 +1,11 @@
 [package]
 name = "sec_edgar"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2021"
 license = "MIT"
 description = "This crate provides tools to query the SEC's EDGAR API."
 homepage = "https://github.com/tieje/rs_sec_edgar"
-documentation = "https://docs.rs/sec_edgar/0.1.0/sec_edgar/"
+documentation = "https://docs.rs/sec_edgar/latest/sec_edgar/index.html"
 repository = "https://github.com/tieje/rs_sec_edgar"
 readme = "README.md"
 exclude = [

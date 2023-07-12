@@ -1,10 +1,11 @@
 # CHANGE LOG
 
-## 1.0.3
+## 1.0.4
 
 7/13/2023
 
 - [x] mutating self instead of creating entirely new self
+- [x] updated to using the latest documentation
 
 ## 1.0.2
 

@@ -1,11 +1,12 @@
 //! This module provides a way to build the URL query that will be used to query EDGAR.
 
+use crate::error::EDGARError;
+
 use super::{
     filing::{self, validate_filing_type_string, FilingTypeOption},
     owner::{self, validate_owner_string, OwnerOptions},
 };
 use reqwest::Url;
-use url::ParseError;
 
 #[allow(missing_docs)]
 #[derive(Debug, PartialEq)]
@@ -73,8 +74,8 @@ impl EdgarQueryBuilder {
         }
     }
     /// Builds and returns the raw HTTPS query that can be used to query EDGAR.
-    pub fn build(&self) -> Result<Url, ParseError> {
-        let query = Url::parse(format!("{base}CIK={cik}&type={filing_type}&dateb={dateb}&owner={owner}&count={count}&search_text={search_text}&output=atom",
+    pub fn build(&self) -> Result<Url, EDGARError> {
+        let url_res = format!("{base}CIK={cik}&type={filing_type}&dateb={dateb}&owner={owner}&count={count}&search_text={search_text}&output=atom",
             base = self.base,
             cik = self.cik,
             filing_type = self.filing_type,
@@ -82,8 +83,9 @@ impl EdgarQueryBuilder {
             owner = self.owner,
             count = self.count,
             search_text = self.search_text
-        ).as_str());
-        query
+        );
+        let query = Url::parse(&url_res)?;
+        Ok(query)
     }
     /// If no filing type is set, the default is an empty String, in which case, all types of filings will be queried.
     pub fn set_filing_type(mut self, filing_type: BuilderInput<FilingTypeOption>) -> Self {
